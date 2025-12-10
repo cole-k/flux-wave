@@ -16,7 +16,8 @@ trace = "0.1.7"
 wave-macros = { path = "wave-macros"}
 owned-components = { path = "owned-components"}
 paste = "1.0" # used in syscall function generation
-flux-rs = { git = "https://github.com/flux-rs/flux.git", rev = "3e7f804ae60f28913726ea9dbf9e54b61387e62f"}
+# flux-rs = { git = "https://github.com/flux-rs/flux.git", rev = "3e7f804ae60f28913726ea9dbf9e54b61387e62f"}
+flux-rs = { path = "/home/cole/research/flux/lib/flux-rs" }
 
 # Used for debugging
 log = "0.4.14"

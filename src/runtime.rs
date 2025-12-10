@@ -3,7 +3,7 @@ use crate::{
     rvec::RVec,
     tcb::{
         misc::{empty_netlist, get_homedir_fd, string_to_rvec_u8},
-        path::HostPathSafe,
+        path::{HostPathSafe, HostPath},
     },
     types::*,
 };
@@ -65,20 +65,41 @@ pub fn fresh_ctx(homedir: String) -> VmCtx {
 impl VmCtx {
     /// Check whether sandbox pointer is actually inside the sandbox
     // TODO: can I eliminate this in favor os in_lin_mem_usize?
-    #[sig(fn(&VmCtx, ptr:SboxPtr) -> bool[0 <= ptr && ptr < LINEAR_MEM_SIZE])]
+    #[vars(
+        $wk0(ctx, ptr) = [true];
+        $wk1(v, ctx, ptr) = [v == (0 <= ptr && ptr < LINEAR_MEM_SIZE)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], ptr:SboxPtr) -> bool[#v]
+          requires $wk0(ctx, ptr)
+          ensures $wk1(v, ctx, ptr)
+    )]
     pub fn in_lin_mem(&self, ptr: SboxPtr) -> bool {
         (ptr as usize >= 0) && (ptr as usize) < self.memlen
     }
 
-    #[sig(fn(&VmCtx, ptr:usize) -> bool[0 <= ptr && ptr < LINEAR_MEM_SIZE])]
+    #[vars(
+        $wk0(ctx, ptr) = [true];
+        $wk1(v, ctx, ptr) = [v == (0 <= ptr && ptr < LINEAR_MEM_SIZE)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], ptr:usize) -> bool[#v]
+          requires $wk0(ctx, ptr)
+          ensures $wk1(v, ctx, ptr)
+    )]
     pub fn in_lin_mem_usize(&self, ptr: usize) -> bool {
         ptr >= 0 && ptr < self.memlen
     }
 
     /// Check whether buffer is entirely within sandbox
     // Can I eliminate this in favor of fits_in_lin_mem_usize
-    #[sig(fn(&VmCtx, buf: SboxPtr, cnt:u32) -> FitsBool(buf, cnt))]
-    pub fn fits_in_lin_mem(&self, buf: SboxPtr, cnt: u32) -> FitsBool {
+    #[vars(
+        $wk0(ctx, buf, cnt) = [true];
+        $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[#v]
+          requires $wk0(ctx, buf, cnt)
+          ensures $wk1(v, ctx, buf, cnt)
+    )]
+    pub fn fits_in_lin_mem(&self, buf: SboxPtr, cnt: u32) -> bool {
         let total_size = (buf as usize) + (cnt as usize);
         if total_size >= self.memlen {
             return false;
@@ -86,8 +107,15 @@ impl VmCtx {
         self.in_lin_mem(buf) && self.in_lin_mem(cnt) && buf <= buf + cnt
     }
 
-    #[sig(fn(&VmCtx, buf:usize, cnt:usize) -> FitsBool(buf, cnt))]
-    pub fn fits_in_lin_mem_usize(&self, buf: usize, cnt: usize) -> FitsBool {
+    #[vars(
+        $wk0(ctx, buf, cnt) = [true];
+        $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:u32) -> bool[#v]
+          requires $wk0(ctx, buf, cnt)
+          ensures $wk1(v, ctx, buf, cnt)
+    )]
+    pub fn fits_in_lin_mem_usize(&self, buf: usize, cnt: usize) -> bool {
         let total_size = buf + cnt;
         if total_size >= self.memlen {
             return false;
@@ -96,7 +124,14 @@ impl VmCtx {
     }
 
     /// Copy buffer from sandbox to host
-    #[sig(fn(&VmCtx, src:SboxPtr, n:u32{0 <= n && src + n < LINEAR_MEM_SIZE}) -> RVec<u8>[n])]
+    #[vars(
+        $wk0(ctx, src, n) = [0 <= n, src + n < LINEAR_MEM_SIZE];
+        $wk1(v, ctx, src, n) = [v == n];
+    )]
+    #[sig(fn(&VmCtx[@ctx], src:SboxPtr, n:u32) -> RVec<u8>[#v]
+          requires $wk0(ctx, src, n)
+          ensures $wk1(v, ctx, src, n)
+    )]
     pub fn copy_buf_from_sandbox(&self, src: SboxPtr, n: u32) -> RVec<u8> {
         let mut host_buffer: RVec<u8> = RVec::from_elem_n(0, n as usize);
         // FLUX-TODO2: capacity: host_buffer.reserve_exact(n as usize);
@@ -122,7 +157,12 @@ impl VmCtx {
     }
 
     /// Copy arg buffer from from host to sandbox
-    #[sig(fn(&mut {VmCtx[@cx] | cx.arg_buf == n}, dst: SboxPtr, n:u32) -> Result<(), RuntimeError>)]
+    #[vars(
+        $wk0(ctx, dst, n) = [ctx.arg_buf == n];
+    )]
+    #[sig(fn(&mut VmCtx[@ctx], dst:SboxPtr, n:u32) -> Result<(), RuntimeError>
+          requires $wk0(ctx, dst, n)
+    )]
     pub fn copy_arg_buffer_to_sandbox(&mut self, dst: SboxPtr, n: u32) -> Result<(), RuntimeError> {
         if !self.fits_in_lin_mem(dst, n) {
             return Err(Efault);
@@ -133,7 +173,12 @@ impl VmCtx {
     }
 
     /// Copy arg buffer from from host to sandbox
-    #[sig(fn(&mut {VmCtx[@cx] | cx.env_buf == n}, dst: SboxPtr, n:u32) -> Result<(), RuntimeError>)]
+    #[vars(
+        $wk0(ctx, dst, n) = [ctx.arg_buf == n];
+    )]
+    #[sig(fn(&mut VmCtx[@ctx], dst:SboxPtr, n:u32) -> Result<(), RuntimeError>
+          requires $wk0(ctx, dst, n)
+    )]
     pub fn copy_environ_buffer_to_sandbox(
         &mut self,
         dst: SboxPtr,
@@ -147,14 +192,26 @@ impl VmCtx {
         Ok(())
     }
 
-    #[sig(fn(&VmCtx[@cx], SboxPtr, u32, should_follow:bool, HostFd) -> Result<HostPathSafe(should_follow), RuntimeError>)]
+    #[vars(
+        $wk0(ctx, sbx, n, should_follow, hostfd) = [true];
+        $wk1(v, ctx, sbx, n, should_follow, hostfd) = [
+            v.depth >= 0,
+            v.is_relative,
+            (should_follow => v.non_symlink),
+            v.non_symlink_prefixes
+        ];
+    )]
+    #[sig(fn(&VmCtx[@ctx], sbx:SboxPtr, n:u32, should_follow:bool, hostfd:HostFd)
+             -> Result<HostPath{v: $wk1(v, ctx, sbx, n, should_follow, hostfd)}, RuntimeError>
+          requires $wk0(ctx, sbx, n, should_follow, hostfd)
+    )]
     pub fn translate_path(
         &self,
         path: SboxPtr,
         path_len: u32,
         should_follow: bool,
         dirfd: HostFd,
-    ) -> Result<HostPathSafe, RuntimeError> {
+    ) -> Result<HostPath, RuntimeError> {
         if !self.fits_in_lin_mem(path, path_len) {
             return Err(Eoverflow);
         }
@@ -168,7 +225,14 @@ impl VmCtx {
         // self.homedir.as_bytes().to_vec()
     }
 
-    #[sig(fn(&VmCtx, FitsUsize(2)) -> u16)]
+    #[vars(
+        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+        $wk1(v, ctx, buf, cnt) = [true];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u16[#v]
+          requires $wk0(ctx, TWO, cnt)
+          ensures  $wk1(v, ctx, TWO, cnt)
+    )]
     pub fn read_u16(&self, start: FitsUsize) -> u16 {
         let bytes: [u8; 2] = [self.mem[start], self.mem[start + 1]];
         u16::from_le_bytes(bytes)
@@ -176,7 +240,14 @@ impl VmCtx {
 
     /// read u32 from wasm linear memory
     // Not thrilled about this implementation, but it works
-    #[sig(fn(&VmCtx, FitsUsize(4)) -> u32)]
+    #[vars(
+        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+        $wk1(v, ctx, buf, cnt) = [true];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u32[#v]
+          requires $wk0(ctx, FOUR, cnt)
+          ensures  $wk1(v, ctx, FOUR, cnt)
+    )]
     pub fn read_u32(&self, start: FitsUsize) -> u32 {
         let bytes: [u8; 4] = [
             self.mem[start],
@@ -190,7 +261,14 @@ impl VmCtx {
     /// read u64 from wasm linear memory
     // Not thrilled about this implementation, but it works
     // TODO: need to test different implementatiosn for this function
-    #[sig(fn(&VmCtx, FitsUsize(8)) -> u64)]
+    #[vars(
+        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+        $wk1(v, ctx, buf, cnt) = [true];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u64[#v]
+          requires $wk0(ctx, EIGHT, cnt)
+          ensures  $wk1(v, ctx, EIGHT, cnt)
+    )]
     pub fn read_u64(&self, start: FitsUsize) -> u64 {
         let bytes: [u8; 8] = [
             self.mem[start],
@@ -217,7 +295,12 @@ impl VmCtx {
     }
 
     // TODO @cx is redundant here but due to https://github.com/liquid-rust/flux/issues/158
-    #[sig(fn (&mut VmCtx[@cx], FitsUsize(1), v: u8))]
+    #[vars(
+        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u8)
+          requires $wk0(ctx, ONE, cnt, v)
+    )]
     pub fn write_u8(&mut self, offset: FitsUsize, v: u8) {
         self.mem[offset] = v;
     }
@@ -232,7 +315,12 @@ impl VmCtx {
     // #[ensures(ctx_safe(self))]
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 2) if addr == start as usize))]
-    #[sig(fn (&mut VmCtx[@cx], FitsUsize(2), v: u16))]
+    #[vars(
+        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u16)
+          requires $wk0(ctx, TWO, cnt, v)
+    )]
     pub fn write_u16(&mut self, start: FitsUsize, v: u16) {
         let bytes: [u8; 2] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
@@ -249,7 +337,12 @@ impl VmCtx {
     // #[ensures(ctx_safe(self))]
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 4) if addr == start as usize))]
-    #[sig(fn (&mut VmCtx[@cx], FitsUsize(4), v: u32))]
+    #[vars(
+        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u32)
+          requires $wk0(ctx, FOUR, cnt, v)
+    )]
     pub fn write_u32(&mut self, start: FitsUsize, v: u32) {
         let bytes: [u8; 4] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
@@ -267,7 +360,12 @@ impl VmCtx {
     // #[ensures(ctx_safe(self))]
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 8) if addr == start as usize))]
-    #[sig(fn (&mut VmCtx[@cx], FitsUsize(8), v: u64))]
+    #[vars(
+        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+    )]
+    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u64)
+          requires $wk0(ctx, EIGHT, cnt, v)
+    )]
     pub fn write_u64(&mut self, start: FitsUsize, v: u64) {
         let bytes: [u8; 8] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
@@ -281,8 +379,14 @@ impl VmCtx {
     }
 
     #[qualifiers(MyQ1)]
-    #[sig(fn(&VmCtx[@cx], &RVec<WasmIoVec>) -> RVec<NativeIoVecOk(cx.base)>)]
-    pub fn translate_iovs(&self, iovs: &RVec<WasmIoVec>) -> RVec<NativeIoVecOk> {
+    #[vars(
+        $wk0(ctx, vec) = [true];
+        $wk1(v, ctx, vec) = [v.iov_base + v.iov_len <= ctx.base + LINEAR_MEM_SIZE];
+    )]
+    #[sig(fn(&VmCtx[@ctx], &RVec<WasmIoVec>[@vec]) -> RVec<NativeIoVec{v: $wk1(v, ctx, vec)}>
+          requires $wk0(ctx, vec)
+    )]
+    pub fn translate_iovs(&self, iovs: &RVec<WasmIoVec>) -> RVec<NativeIoVec> {
         let mut idx = 0;
         let mut native_iovs = NativeIoVecs::new();
         let iovcnt = iovs.len();

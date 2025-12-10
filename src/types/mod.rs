@@ -21,6 +21,11 @@ mod platform;
 use flux_rs::*;
 use libc::mode_t;
 
+pub const ONE: usize = 1;
+pub const TWO: usize = 2;
+pub const FOUR: usize = 4;
+pub const EIGHT: usize = 8;
+
 pub const LINEAR_MEM_SIZE: usize = 4294965096; //4GB
 
 pub const HOMEDIR_FD: SboxFd = 3; //4GB
