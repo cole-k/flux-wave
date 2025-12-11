@@ -95,7 +95,9 @@ impl FdMap {
         $wk0(fd) = [true];
         $wk1(v, fd) = [v < MAX_SBOX_FDS];
     )]
-    #[sig(fn (self: &strg FdMap[@fd]) -> Result<SboxFd{v: $wk1(v, fd)}, RuntimeError> ensures self: FdMap
+    #[sig(fn (self: &strg FdMap[@fd]) -> Result<SboxFd{v: $wk1(v, fd)}, RuntimeError>
+          requires $wk0(fd)
+          ensures self: FdMap
     )]
     fn pop_fd(&mut self) -> Result<SboxFd, RuntimeError> {
         if self.reserve.len() > 0 {

@@ -33,7 +33,7 @@ pub use platform::*;
 // #[ensures(one_effect!(old(trace), trace, effect!(PathAccessAt, os_fd, p)))]
 #[vars(
     $wk0(cx, dir_fd, path, flags) = [
-        dir_fd == cx.homdir_host_fd,
+        dir_fd == cx.homedir_host_fd,
         path.depth >= 0,
         path.is_relative,
         (!flag_set(flags, O_NOFOLLOW) => path.non_symlink),
@@ -432,7 +432,7 @@ pub fn trace_fstat(_ctx: &VmCtx, fd: HostFd, stat: &mut libc::stat) -> Result<us
 // #[ensures(two_effects!(old(trace), trace, effect!(FdAccess), effect!(PathAccessAt, os_fd)))]
 #[vars(
     $wk0(cx, fd, path, flags) = [
-        fd == cx.homdir_host_fd,
+        fd == cx.homedir_host_fd,
         path.depth >= 0,
         path.is_relative,
         (flag_not_set(flags, AT_SYMLINK_NOFOLLOW) => path.non_symlink),
@@ -524,12 +524,12 @@ pub fn trace_ftruncate(_ctx: &VmCtx, fd: HostFd, length: libc::off_t) -> Runtime
 // // #[ensures(four_effects!(old(trace), trace, effect!(FdAccess), effect!(FdAccess), effect!(PathAccessAt, os_old_fd), effect!(PathAccessAt, os_new_fd)))]
 #[vars(
     $wk0(cx, old_fd, old_path, new_fd, new_path, flags) = [
-        old_fd == cx.homdir_host_fd,
+        old_fd == cx.homedir_host_fd,
         old_path.depth >= 0,
         old_path.is_relative,
         (flag_set(flags, AT_SYMLINK_FOLLOW) => old_path.non_symlink),
         old_path.non_symlink_prefixes,
-        new_fd == cx.homdir_host_fd,
+        new_fd == cx.homedir_host_fd,
         new_path.depth >= 0,
         new_path.is_relative,
         (flag_set(flags, AT_SYMLINK_FOLLOW) => new_path.non_symlink),
@@ -567,7 +567,7 @@ pub fn trace_linkat(
 
 #[vars(
     $wk0(cx, dir_fd, path, mode) = [
-        dir_fd == cx.homdir_host_fd,
+        dir_fd == cx.homedir_host_fd,
         path.depth >= 0,
         path.is_relative,
         path.non_symlink,
@@ -602,7 +602,7 @@ pub fn trace_mkdirat(
 // // #[ensures(three_effects!(old(trace), trace, effect!(FdAccess), effect!(PathAccessAt, os_fd), effect!(WriteMem, addr, count)))]
 #[vars(
     $wk0(cx, dir_fd, pathname, ptr, cnt) = [
-        dir_fd == cx.homdir_host_fd,
+        dir_fd == cx.homedir_host_fd,
         pathname.depth >= 0,
         pathname.is_relative,
         pathname.non_symlink_prefixes,
@@ -638,7 +638,7 @@ pub fn trace_readlinkat(
 // // #[ensures(two_effects!(old(trace), trace, effect!(FdAccess), effect!(PathAccessAt, os_fd)))]
 #[vars(
     $wk0(cx, dir_fd, path) = [
-        dir_fd == cx.homdir_host_fd,
+        dir_fd == cx.homedir_host_fd,
         path.depth >= 0,
         path.is_relative,
         path.non_symlink_prefixes,
@@ -672,11 +672,11 @@ pub fn trace_unlinkat(
 // // #[ensures(four_effects!(old(trace), trace, effect!(FdAccess), effect!(PathAccessAt, os_old_fd), effect!(FdAccess), effect!(PathAccessAt, os_new_fd)))]
 #[vars(
     $wk0(cx, old_fd, old_path, new_fd, new_path) = [
-        old_fd == cx.homdir_host_fd,
+        old_fd == cx.homedir_host_fd,
         old_path.depth >= 0,
         old_path.is_relative,
         old_path.non_symlink_prefixes,
-        new_fd == cx.homdir_host_fd,
+        new_fd == cx.homedir_host_fd,
         new_path.depth >= 0,
         new_path.is_relative,
         new_path.non_symlink_prefixes
@@ -712,7 +712,7 @@ pub fn trace_renameat(
 // // #[ensures(two_effects!(old(trace), trace,  effect!(PathAccessAt, os_fd), effect!(FdAccess)))]
 #[vars(
     $wk0(cx, dir_fd, old_path, new_path) = [
-        dir_fd == cx.homdir_host_fd,
+        dir_fd == cx.homedir_host_fd,
         old_path.depth >= 0,
         old_path.is_relative,
         old_path.non_symlink,
@@ -724,7 +724,7 @@ pub fn trace_renameat(
     ];
     $wk1(cx, dir_fd, old_path, new_path) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostPath[@old_path], HostFd[@dir_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(v, cx, dir_fd, old_path, new_path)}, RuntimeError>
+#[sig(fn (ctx: &VmCtx[@cx], HostPath[@old_path], HostFd[@dir_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(cx, dir_fd, old_path, new_path)}, RuntimeError>
       requires $wk0(cx, dir_fd, old_path, new_path)
 )]
 pub fn trace_symlinkat(

@@ -111,7 +111,7 @@ impl VmCtx {
         $wk0(ctx, buf, cnt) = [true];
         $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
     )]
-    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:u32) -> bool[#v]
+    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[#v]
           requires $wk0(ctx, buf, cnt)
           ensures $wk1(v, ctx, buf, cnt)
     )]
@@ -226,14 +226,14 @@ impl VmCtx {
     }
 
     #[vars(
-        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
-        $wk1(v, ctx, buf, cnt) = [true];
+        $wk0(ctx, cnt) = [fits_in_lin_mem(2, cnt)];
+        $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u16[#v]
-          requires $wk0(ctx, TWO, cnt)
-          ensures  $wk1(v, ctx, TWO, cnt)
+          requires $wk0(ctx, cnt)
+          ensures  $wk1(v, ctx, cnt)
     )]
-    pub fn read_u16(&self, start: FitsUsize) -> u16 {
+    pub fn read_u16(&self, start: usize) -> u16 {
         let bytes: [u8; 2] = [self.mem[start], self.mem[start + 1]];
         u16::from_le_bytes(bytes)
     }
@@ -241,14 +241,14 @@ impl VmCtx {
     /// read u32 from wasm linear memory
     // Not thrilled about this implementation, but it works
     #[vars(
-        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
-        $wk1(v, ctx, buf, cnt) = [true];
+        $wk0(ctx, cnt) = [fits_in_lin_mem(4, cnt)];
+        $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u32[#v]
-          requires $wk0(ctx, FOUR, cnt)
-          ensures  $wk1(v, ctx, FOUR, cnt)
+          requires $wk0(ctx, cnt)
+          ensures  $wk1(v, ctx, cnt)
     )]
-    pub fn read_u32(&self, start: FitsUsize) -> u32 {
+    pub fn read_u32(&self, start: usize) -> u32 {
         let bytes: [u8; 4] = [
             self.mem[start],
             self.mem[start + 1],
@@ -262,14 +262,14 @@ impl VmCtx {
     // Not thrilled about this implementation, but it works
     // TODO: need to test different implementatiosn for this function
     #[vars(
-        $wk0(ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
-        $wk1(v, ctx, buf, cnt) = [true];
+        $wk0(ctx, cnt) = [fits_in_lin_mem(8, cnt)];
+        $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u64[#v]
-          requires $wk0(ctx, EIGHT, cnt)
-          ensures  $wk1(v, ctx, EIGHT, cnt)
+          requires $wk0(ctx, cnt)
+          ensures  $wk1(v, ctx, cnt)
     )]
-    pub fn read_u64(&self, start: FitsUsize) -> u64 {
+    pub fn read_u64(&self, start: usize) -> u64 {
         let bytes: [u8; 8] = [
             self.mem[start],
             self.mem[start + 1],
@@ -296,12 +296,12 @@ impl VmCtx {
 
     // TODO @cx is redundant here but due to https://github.com/liquid-rust/flux/issues/158
     #[vars(
-        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+        $wk0(ctx, cnt, v) = [fits_in_lin_mem(1, cnt)];
     )]
-    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u8)
-          requires $wk0(ctx, ONE, cnt, v)
+    #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u8)
+          requires $wk0(ctx, cnt, v)
     )]
-    pub fn write_u8(&mut self, offset: FitsUsize, v: u8) {
+    pub fn write_u8(&mut self, offset: usize, v: u8) {
         self.mem[offset] = v;
     }
 
@@ -316,12 +316,12 @@ impl VmCtx {
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 2) if addr == start as usize))]
     #[vars(
-        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+        $wk0(ctx, cnt, v) = [fits_in_lin_mem(2, cnt)];
     )]
-    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u16)
-          requires $wk0(ctx, TWO, cnt, v)
+    #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u16)
+          requires $wk0(ctx, cnt, v)
     )]
-    pub fn write_u16(&mut self, start: FitsUsize, v: u16) {
+    pub fn write_u16(&mut self, start: usize, v: u16) {
         let bytes: [u8; 2] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
         self.write_u8(start + 1, bytes[1]);
@@ -338,12 +338,12 @@ impl VmCtx {
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 4) if addr == start as usize))]
     #[vars(
-        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+        $wk0(ctx, cnt, v) = [fits_in_lin_mem(4, cnt)];
     )]
-    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u32)
-          requires $wk0(ctx, FOUR, cnt, v)
+    #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u32)
+          requires $wk0(ctx, cnt, v)
     )]
-    pub fn write_u32(&mut self, start: FitsUsize, v: u32) {
+    pub fn write_u32(&mut self, start: usize, v: u32) {
         let bytes: [u8; 4] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
         self.write_u8(start + 1, bytes[1]);
@@ -361,12 +361,12 @@ impl VmCtx {
     // #[ensures(trace_safe(trace, self))]
     // // #[ensures(effects!(old(trace), trace, effect!(WriteMem, addr, 8) if addr == start as usize))]
     #[vars(
-        $wk0(ctx, buf, cnt, v) = [fits_in_lin_mem(buf, cnt)];
+        $wk0(ctx, cnt, v) = [fits_in_lin_mem(8, cnt)];
     )]
-    #[sig(fn(&VmCtx[@ctx], cnt:usize, v: u64)
-          requires $wk0(ctx, EIGHT, cnt, v)
+    #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u64)
+          requires $wk0(ctx, cnt, v)
     )]
-    pub fn write_u64(&mut self, start: FitsUsize, v: u64) {
+    pub fn write_u64(&mut self, start: usize, v: u64) {
         let bytes: [u8; 8] = v.to_le_bytes();
         self.write_u8(start, bytes[0]);
         self.write_u8(start + 1, bytes[1]);
