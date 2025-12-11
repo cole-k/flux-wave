@@ -185,6 +185,13 @@ pub fn parse_subscriptions(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(cx, out_ptr, timeouts) = [true];
+    $wk1(v, cx, out_ptr, timeouts) = [true];
+)]
+#[sig(fn(&mut VmCtx[@cx], out_ptr: u32, &RVec<(u64, Timestamp)>[@timeouts], min_timeout: &Option<Timestamp>) -> RuntimeResult<u32{v: $wk1(v, cx, out_ptr, timeouts)}>
+      requires $wk0(cx, out_ptr, timeouts)
+)]
 pub fn writeback_timeouts(
     ctx: &mut VmCtx,
     out_ptr: u32,
@@ -228,6 +235,13 @@ pub fn writeback_timeouts(
 // #[ensures(trace_safe(trace, ctx))]
 // #[external_calls(from_posix, from_poll_revents, Some)]
 // #[external_methods(to_event_type)]
+#[vars(
+    $wk0(cx, out_ptr, pollfds, fd_data) = [true];
+    $wk1(v, cx, out_ptr, pollfds, fd_data) = [true];
+)]
+#[sig(fn(&mut VmCtx[@cx], out_ptr: u32, &RVec<libc::pollfd>[@pollfds], &RVec<(u64, SubscriptionFdType)>[@fd_data]) -> RuntimeResult<u32{v: $wk1(v, cx, pollfds, fd_data)}>
+      requires $wk0(cx, out_ptr, pollfds, fd_data)
+)]
 pub fn writeback_fds(
     ctx: &mut VmCtx,
     out_ptr: u32,
