@@ -24,7 +24,10 @@ We will prove things about it's API as necessary.
 // homedir is hardcoded to 3.
 
 impl FdMap {
-    #[sig(fn () -> FdMap[0, 0])]
+    #[vars(
+        $wk1(v1, v2) = [v1 == 0, v2 == 0];
+    )]
+    #[sig(fn () -> FdMap[#v1, #v2])]
     pub fn new() -> FdMap {
         FdMap {
             m: rvec![Err(Ebadf); MAX_SBOX_FDS as usize],
@@ -36,7 +39,13 @@ impl FdMap {
 
     // #[requires (self.counter == 0)] //should only be called on empty fdmap
 
-    #[sig(fn (self: &strg { FdMap[@fm] | fm.counter == 0}) -> Result<(), RuntimeError> ensures self: FdMap)]
+    #[vars(
+        $wk0(fm) = [fm.counter == 0];
+    )]
+    #[sig(fn (self: &strg FdMap[@fm]) -> Result<(), RuntimeError>
+          requires $wk0(fm)
+          ensures self: FdMap
+    )]
     pub fn init_std_fds(&mut self) -> Result<(), RuntimeError> {
         let stdin_fd = stdin().as_raw_fd();
         let stdout_fd = stdout().as_raw_fd();
@@ -61,7 +70,13 @@ impl FdMap {
     // #[with_ghost_var(trace: &Trace)]
     // #[external_calls(vec_checked_lookup)]
     // #[ensures(result.is_ok() ==> old(v_fd) < MAX_SBOX_FDS)]
-    #[sig(fn (&FdMap, v_fd: SboxFd) -> Result<{HostFd | v_fd < MAX_SBOX_FDS}, RuntimeError>)]
+    #[vars(
+        $wk0(fm, v_fd) = [true];
+        $wk1(v, fm, v_fd) = [v_fd < MAX_SBOX_FDS];
+    )]
+    #[sig(fn (&FdMap[@fm], v_fd: SboxFd) -> Result<HostFd{v: $wk1(v, fm, v_fd)}, RuntimeError>
+          requires $wk0(fm, v_fd)
+    )]
     pub fn fd_to_native(&self, v_fd: SboxFd) -> Result<HostFd, RuntimeError> {
         if v_fd >= MAX_SBOX_FDS {
             return Err(Ebadf);
@@ -76,8 +91,13 @@ impl FdMap {
     //     matches!(self.lookup(index), Ok(_))
     // }
 
-    #[sig(fn (self: &strg FdMap[@fd]) -> Result<SboxFdSafe, RuntimeError> ensures self: FdMap)]
-    fn pop_fd(&mut self) -> Result<SboxFdSafe, RuntimeError> {
+    #[vars(
+        $wk0(fd) = [true];
+        $wk1(v, fd) = [v < MAX_SBOX_FDS];
+    )]
+    #[sig(fn (self: &strg FdMap[@fd]) -> Result<SboxFd{v: $wk1(v, fd)}, RuntimeError> ensures self: FdMap
+    )]
+    fn pop_fd(&mut self) -> Result<SboxFd, RuntimeError> {
         if self.reserve.len() > 0 {
             Ok(self.reserve.pop())
         } else {
@@ -89,14 +109,28 @@ impl FdMap {
         }
     }
 
-    #[sig(fn (self: &strg FdMap[@dummy], k: HostFd) -> Result<SboxFd, RuntimeError> ensures self: FdMap)]
+    #[vars(
+        $wk0(dummy, k) = [true];
+        $wk1(v, dummy, k) = [true];
+    )]
+    #[sig(fn (self: &strg FdMap[@dummy], k: HostFd) -> Result<SboxFd{v: $wk1(v, dummy, k)}, RuntimeError>
+          requires $wk0(dummy, k)
+          ensures self: FdMap
+    )]
     pub fn create(&mut self, k: HostFd) -> Result<SboxFd, RuntimeError> {
         let s_fd = self.pop_fd()?;
         self.m[s_fd as usize] = Ok(k);
         Ok(s_fd)
     }
 
-    #[sig(fn (self: &strg FdMap[@dummy], k: HostFd, proto: WasiProto) -> Result<SboxFd, RuntimeError> ensures self: FdMap)]
+    #[vars(
+        $wk0(dummy, k, proto) = [true];
+        $wk1(v, dummy, k, proto) = [true];
+    )]
+    #[sig(fn (self: &strg FdMap[@dummy], k: HostFd, proto: WasiProto) -> Result<SboxFd{v: $wk1(v, dummy, k, proto)}, RuntimeError>
+          requires $wk0(dummy, k, proto)
+          ensures self: FdMap
+    )]
     pub fn create_sock(&mut self, k: HostFd, proto: WasiProto) -> Result<SboxFd, RuntimeError> {
         let s_fd = self.pop_fd()?;
         self.m[s_fd as usize] = Ok(k);
@@ -106,8 +140,14 @@ impl FdMap {
 
     // #[requires(k < MAX_SBOX_FDS)]
     // FLUX-TODO2 open-mut-ref
-    #[sig(fn (self: &strg FdMap, k: SboxFdSafe) ensures self: FdMap)]
-    pub fn delete(&mut self, k: SboxFdSafe) {
+    #[vars(
+        $wk0(fm, k) = [k < MAX_SBOX_FDS];
+    )]
+    #[sig(fn (self: &strg FdMap[@fm], k: SboxFd)
+          requires $wk0(fm, k)
+          ensures self: FdMap
+    )]
+    pub fn delete(&mut self, k: SboxFd) {
         if let Ok(_oldfd) = self.m[k as usize] {
             self.reserve.push(k);
         }
@@ -116,7 +156,12 @@ impl FdMap {
 
     // #[requires(from < MAX_SBOX_FDS)]
     // #[requires(to < MAX_SBOX_FDS)]
-    #[sig(fn (self: &mut FdMap[@dummy], from: SboxFdSafe, to: SboxFdSafe))]
+    #[vars(
+        $wk0(dummy, from, to) = [from < MAX_SBOX_FDS, to < MAX_SBOX_FDS];
+    )]
+    #[sig(fn (self: &mut FdMap[@dummy], from: SboxFd, to: SboxFd)
+          requires $wk0(dummy, from, to)
+    )]
     pub fn shift(&mut self, from: SboxFdSafe, to: SboxFdSafe) {
         if let Ok(hostfd) = self.m[from as usize] {
             self.m[to as usize] = Ok(hostfd)

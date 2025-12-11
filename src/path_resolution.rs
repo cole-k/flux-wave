@@ -12,12 +12,21 @@ fn to_pathbuf(v: RVec<u8>) -> PathBuf {
     PathBuf::from(OsString::from_vec(v.to_vec()))
 }
 
-#[sig(fn(RVec<u8>, should_follow:bool, HostFd) -> Result<LastSymLink(should_follow), RuntimeError>)]
+#[vars(
+    $wk0(vec, should_follow, dirfd) = [true];
+    $wk1(v, vec, should_follow, dirfd) = [
+        v.size - 1 <= v.ns_prefix,
+        (should_follow => v.size == v.ns_prefix)
+    ];
+)]
+#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<FOwnedComponents{v: $wk1(v, vec, should_follow, dirfd)}, RuntimeError>
+      requires $wk0(vec, should_follow, dirfd)
+)]
 fn expand_path(
     vec: RVec<u8>,
     should_follow: bool,
     dirfd: HostFd,
-) -> Result<LastSymLink, RuntimeError> {
+) -> Result<FOwnedComponents, RuntimeError> {
     let p = to_pathbuf(vec);
     let components = get_components(&p);
 
@@ -48,12 +57,23 @@ fn expand_path(
     Ok(out_path)
 }
 
-#[sig(fn(RVec<u8>, should_follow:bool, HostFd) -> Result<HostPathSafe(should_follow), RuntimeError>)]
+#[vars(
+    $wk0(vec, should_follow, dirfd) = [true];
+    $wk1(v, vec, should_follow, dirfd) = [
+        v.depth >= 0,
+        v.is_relative,
+        (should_follow => v.non_symlink),
+        v.non_symlink_prefixes
+    ];
+)]
+#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<HostPath{v: $wk1(v, vec, should_follow, dirfd)}, RuntimeError>
+      requires $wk0(vec, should_follow, dirfd)
+)]
 pub fn resolve_path(
     path: RVec<u8>,
     should_follow: bool,
     dirfd: HostFd,
-) -> Result<HostPathSafe, RuntimeError> {
+) -> Result<HostPath, RuntimeError> {
     // TODO: use ? when that works properly in Prusti
     let c = expand_path(path, should_follow, dirfd);
 
@@ -76,9 +96,16 @@ pub fn resolve_path(
 
 // Recursively expands a symlink (without explicit recursion)
 // maintains a queue of path components to process
-#[sig(fn(out_path: &mut NoSymLinks, linkpath: FOwnedComponents, num_symlinks: &mut isize, HostFd))]
+#[vars(
+    $wk0(out_path, linkpath, num_symlinks, dirfd) = [
+        out_path.size == out_path.ns_prefix
+    ];
+)]
+#[sig(fn(&mut FOwnedComponents[@out_path], linkpath: FOwnedComponents, &mut isize[@num_symlinks], dirfd:HostFd)
+      requires $wk0(out_path, linkpath, num_symlinks, dirfd)
+)]
 fn expand_symlink(
-    out_path: &mut NoSymLinks,
+    out_path: &mut FOwnedComponents,
     linkpath_components: FOwnedComponents,
     num_symlinks: &mut isize,
     dirfd: HostFd,

@@ -21,6 +21,7 @@ mod platform;
 use flux_rs::*;
 use libc::mode_t;
 
+pub const ZERO: usize = 0;
 pub const ONE: usize = 1;
 pub const TWO: usize = 2;
 pub const FOUR: usize = 4;
