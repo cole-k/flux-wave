@@ -19,7 +19,14 @@ use RuntimeError::*;
 // #[ensures(trace_safe(trace, ctx))]
 // #[external_methods(push, checked_sub, try_into, subscription_clock_abstime)]
 // #[external_calls(Some)]
-#[sig(fn (ctx: &VmCtx, sub_clock: SubscriptionClock, precision: u64, min_timeout: &mut Option<Timestamp>, timeouts: &strg RVec<(u64, Timestamp)>, userdata: u64) -> Result<(), RuntimeError> ensures timeouts: RVec<(u64, Timestamp)>)]
+#[vars(
+    $wk0(cx, precision, timeouts, userdata) = [true];
+    $wk1(v, cx, precision, timeouts, userdata) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], sub_clock: SubscriptionClock, precision: u64, min_timeout: &mut Option<Timestamp>, tos: &strg RVec<(u64, Timestamp)>[@timeouts], userdata: u64) -> Result<(), RuntimeError>
+      requires $wk0(cx, precision, timeouts, userdata)
+      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v, cx, precision, timeouts, userdata)}
+)]
 pub fn poll_parse_clock(
     ctx: &VmCtx,
     sub_clock: SubscriptionClock,
@@ -67,7 +74,16 @@ pub fn poll_parse_clock(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[external_methods(push, to_posix)]
-#[sig(fn (ctx: &VmCtx, pollfds: &strg RVec<libc::pollfd>, fd_data: &strg RVec<(u64, SubscriptionFdType)>, userdata: u64, subscription_readwrite: SubscriptionFdReadWrite) -> Result<(), RuntimeError> ensures pollfds: RVec<libc::pollfd>, fd_data: RVec<(u64, SubscriptionFdType)>)]
+#[vars(
+    $wk0(cx, pollfds, fd_data, userdata) = [true];
+    $wk1(v, cx, pollfds, fd_data, userdata) = [true];
+    $wk2(v, cx, pollfds, fd_data, userdata) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], pfds: &strg RVec<libc::pollfd>[@pollfds], fdd: &strg RVec<(u64, SubscriptionFdType)>[@fd_data], userdata: u64, subscription_readwrite: SubscriptionFdReadWrite) -> Result<(), RuntimeError>
+      requires $wk0(cx, pollfds, fd_data, userdata)
+      ensures pfds: RVec<libc::pollfd>{v: $wk1(v, cx, pollfds, fd_data, userdata)},
+              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk2(v, cx, pollfds, fd_data, userdata)}
+)]
 pub fn poll_parse_fds(
     ctx: &VmCtx,
     pollfds: &mut RVec<libc::pollfd>,
@@ -99,7 +115,18 @@ pub fn poll_parse_fds(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[external_calls(poll_handle_fds, poll_handle_clock)]
-#[sig(fn (ctx: &VmCtx, in_ptr: u32, nsubscriptions: u32, precision: u64, min_timeout: &mut Option<Timestamp>, timeouts: &strg RVec<(u64, Timestamp)>, pollfds: &strg RVec<libc::pollfd>, fd_data: &strg RVec<(u64, SubscriptionFdType)>) -> Result<(), RuntimeError> ensures timeouts: RVec<(u64, Timestamp)>, pollfds: RVec<libc::pollfd>, fd_data: RVec<(u64, SubscriptionFdType)>)]
+#[vars(
+    $wk0(cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data) = [true];
+    $wk1(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data) = [true];
+    $wk2(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data) = [true];
+    $wk3(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], in_ptr: u32, nsubscriptions: u32, precision: u64, min_timeout: &mut Option<Timestamp>, tos: &strg RVec<(u64, Timestamp)>[@timeouts], pfds: &strg RVec<libc::pollfd>[@pollfds], fdd: &strg RVec<(u64, SubscriptionFdType)>[@fd_data]) -> Result<(), RuntimeError>
+      requires $wk0(cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)
+      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)},
+              pfds: RVec<libc::pollfd>{v: $wk2(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)},
+              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk3(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)}
+)]
 pub fn parse_subscriptions(
     ctx: &VmCtx,
     in_ptr: u32,
