@@ -145,7 +145,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $name>]($($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -159,7 +160,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $name>]($($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -179,7 +181,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $os_name>]($($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall!([<$name:upper>], $(Syscallarg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall!([<$name:upper>], $(Syscallarg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -201,7 +204,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $os_name>]($($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -221,7 +225,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $name>](_cx: &VmCtx, $($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize};
+                // let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize};
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -235,7 +240,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $name>](_cx: &VmCtx, $($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -255,7 +261,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $os_name>](_cx: &VmCtx, $($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;
@@ -277,7 +284,8 @@ macro_rules! syscall_spec_gen {
             pub fn [<os_ $os_name>](_cx: &VmCtx, $($arg: $type),*) -> isize {
                 use $crate::tcb::os_specs::SyscallArg;
                 let __start_ts = start_timer();
-                let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                // let result = unsafe { syscall::syscall!([<$name:upper>], $(SyscallArg::into_raw($arg)),*) as isize };
+                let result = unimplemented!("removed syscall");
                 let __end_ts = stop_timer();
                 push_syscall_result(stringify!($name), __start_ts, __end_ts);
                 return result;

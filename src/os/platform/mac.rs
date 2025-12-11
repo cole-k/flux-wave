@@ -64,6 +64,7 @@ pub fn trace_allocate(ctx: &VmCtx, fd: HostFd, offset: i64, len: i64) -> Runtime
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[flux::trusted]
 #[flux::sig(fn (ctx: &VmCtx, clock_id: clockid_t, spec: &mut timespec) -> Result<usize, RuntimeError>)]
 pub fn trace_clock_get_time(
     ctx: &VmCtx,
@@ -152,6 +153,7 @@ pub fn trace_clock_get_time(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[flux::trusted]
 #[flux::sig(fn (ctx: &VmCtx, clock_id: clockid_t, spec: &mut timespec) -> Result<usize, RuntimeError>)]
 pub fn trace_clock_get_res(
     ctx: &VmCtx,

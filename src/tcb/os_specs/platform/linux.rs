@@ -83,7 +83,9 @@ pub fn os_futimens(fd: usize, specs: &RVec<timespec>) -> isize {
     let __start_ts = start_timer();
     // Linux impls futimens as UTIMENSAT with null path
     // source: https://code.woboq.org/userspace/glibc/sysdeps/unix/sysv/linux/futimens.c.html
-    let result = unsafe { syscall::syscall!(UTIMENSAT, fd, 0, specs.inner.as_ptr(), 0) as isize }; // FLUX-TODO2: as_ptr for RVec
+
+    // let result = unsafe { syscall::syscall!(UTIMENSAT, fd, 0, specs.inner.as_ptr(), 0) as isize }; // FLUX-TODO2: as_ptr for RVec
+    let result = unimplemented!("removed syscall");
     let __end_ts = stop_timer();
     push_syscall_result("futimens", __start_ts, __end_ts);
     result
@@ -140,7 +142,8 @@ pub fn os_getdents64(fd: usize, dirp: &mut RVec<u8>, count: usize) -> isize {
     let __start_ts = start_timer();
     let result = unsafe {
         let result = 0;
-        syscall::syscall!(GETDENTS64, fd, dirp.inner.as_mut_ptr(), count);
+        // syscall::syscall!(GETDENTS64, fd, dirp.inner.as_mut_ptr(), count);
+        unimplemented!("removed syscall");
         if (result as isize) != -1 {
             dirp.set_len(result);
         } else {

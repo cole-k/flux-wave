@@ -9,14 +9,15 @@ name = "wave"
 crate-type = ["dylib", "rlib"]
 
 [dependencies]
-system-call = { git = "https://github.com/emlaufer/system-call.rs.git", branch = "master" }
+# system-call = { git = "https://github.com/emlaufer/system-call.rs.git", branch = "master" }
+# system-call = { path = "/Users/cole/git/system-call.rs" }
 libc = "0.2"
 trace = "0.1.7"
 #extra_args = "=0.1.69"
 wave-macros = { path = "wave-macros"}
 owned-components = { path = "owned-components"}
 paste = "1.0" # used in syscall function generation
-flux-rs = { git = "https://github.com/flux-rs/flux.git", rev = "3e7f804ae60f28913726ea9dbf9e54b61387e62f"}
+flux-rs = { path = "/Users/cole/git/flux/lib/flux-rs" }
 
 # Used for debugging
 log = "0.4.14"
@@ -29,7 +30,6 @@ statistical = "1.0.0"
 
 #[dev-dependencies]
 regex = "1"
-
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mach2 = "0.4.0"

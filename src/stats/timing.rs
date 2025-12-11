@@ -1,6 +1,6 @@
 // ignore checking this module (and all its contents)
 #![cfg_attr(flux, flux::ignore)]
-use core::arch::x86_64::{__cpuid_count, __rdtscp, _rdtsc};
+// use core::arch::x86_64::{__cpuid_count, __rdtscp, _rdtsc};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -109,8 +109,10 @@ thread_local! {
 #[inline]
 pub fn start_timer() -> u64 {
     unsafe {
-        __cpuid_count(0, 0);
-        _rdtsc() as u64
+        // __cpuid_count(0, 0);
+        unimplemented!("stub cpuid count");
+        // _rdtsc() as u64
+        unimplemented!("stub rdtsc");
     }
 }
 
@@ -118,8 +120,10 @@ pub fn start_timer() -> u64 {
 pub fn stop_timer() -> u64 {
     unsafe {
         let mut junk: u32 = 0;
-        let ans: u64 = __rdtscp(&mut junk);
-        __cpuid_count(0, 0);
+        let ans = unimplemented!("stub rdtsp");
+        // let ans: u64 = __rdtscp(&mut junk);
+        // __cpuid_count(0, 0);
+        unimplemented!("stub cpuid count");
         ans
     }
 }

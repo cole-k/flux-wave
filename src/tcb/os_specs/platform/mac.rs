@@ -1,6 +1,6 @@
 use crate::{
     syscall_spec_gen,
-    tcb::{misc::flag_set, path::HostPath},
+    tcb::{misc::flag_set, path::{HostPath, HostPathSafe}},
     types::VmCtx,
 };
 // use crate::tcb::sbox_mem::raw_ptr;
@@ -24,6 +24,10 @@ use security_framework_sys::random::{kSecRandomDefault, SecRandomCopyBytes};
 use crate::rvec::{BSlice, RVec};
 use libc::timespec;
 pub use paste::paste;
+
+#[cfg(flux)]
+#[expect(unused)]
+use libc::AT_SYMLINK_NOFOLLOW;
 
 // https://man7.org/linux/man-pages/man2/pread.2.html
 syscall_spec_gen! {
