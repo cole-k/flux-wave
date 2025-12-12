@@ -97,12 +97,12 @@ pub fn resolve_path(
 // Recursively expands a symlink (without explicit recursion)
 // maintains a queue of path components to process
 #[vars(
-    $wk0(out_path, linkpath, num_symlinks, dirfd) = [
+    $wk0(out_path, linkpath, dirfd) = [
         out_path.size == out_path.ns_prefix
     ];
 )]
-#[sig(fn(&mut FOwnedComponents[@out_path], linkpath: FOwnedComponents, &mut isize[@num_symlinks], dirfd:HostFd)
-      requires $wk0(out_path, linkpath, num_symlinks, dirfd)
+#[sig(fn(&mut FOwnedComponents[@out_path], linkpath: FOwnedComponents, &mut isize, dirfd:HostFd)
+      requires $wk0(out_path, linkpath, dirfd)
 )]
 fn expand_symlink(
     out_path: &mut FOwnedComponents,

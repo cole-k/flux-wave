@@ -919,11 +919,11 @@ pub fn trace_shutdown(_ctx: &VmCtx, fd: HostFd, how: libc::c_int) -> RuntimeResu
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace, effect!(FdAccess)))]
 #[vars(
-    $wk0(cx, pollfds) = [true];
-    $wk1(v, cx, pollfds) = [true];
+    $wk0(cx) = [true];
+    $wk1(v, cx) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], &mut RVec<libc::pollfd>[@pollfds], timeout: libc::c_int) -> Result<usize{v: $wk1(v, cx, pollfds)}, RuntimeError>
-      requires $wk0(cx, pollfds)
+#[sig(fn (ctx: &VmCtx[@cx], &mut RVec<libc::pollfd>, timeout: libc::c_int) -> Result<usize{v: $wk1(v, cx)}, RuntimeError>
+      requires $wk0(cx)
 )]
 pub fn trace_poll(
     _ctx: &VmCtx,
