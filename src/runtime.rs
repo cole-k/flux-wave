@@ -91,14 +91,15 @@ impl VmCtx {
 
     /// Check whether buffer is entirely within sandbox
     // Can I eliminate this in favor of fits_in_lin_mem_usize
-    #[vars(
-        $wk0(ctx, buf, cnt) = [true];
-        $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
-    )]
-    #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[#v]
-          requires $wk0(ctx, buf, cnt)
-          ensures $wk1(v, ctx, buf, cnt)
-    )]
+    // #[vars(
+    //     $wk0(ctx, buf, cnt) = [true];
+    //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+    // )]
+    // #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[#v]
+    //       requires $wk0(ctx, buf, cnt)
+    //       ensures $wk1(v, ctx, buf, cnt)
+    // )]
+    #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[fits_in_lin_mem(buf, cnt)])]
     pub fn fits_in_lin_mem(&self, buf: SboxPtr, cnt: u32) -> bool {
         let total_size = (buf as usize) + (cnt as usize);
         if total_size >= self.memlen {
@@ -107,14 +108,15 @@ impl VmCtx {
         self.in_lin_mem(buf) && self.in_lin_mem(cnt) && buf <= buf + cnt
     }
 
-    #[vars(
-        $wk0(ctx, buf, cnt) = [true];
-        $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
-    )]
-    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[#v]
-          requires $wk0(ctx, buf, cnt)
-          ensures $wk1(v, ctx, buf, cnt)
-    )]
+    // #[vars(
+    //     $wk0(ctx, buf, cnt) = [true];
+    //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
+    // )]
+    // #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[#v]
+    //       requires $wk0(ctx, buf, cnt)
+    //       ensures $wk1(v, ctx, buf, cnt)
+    // )]
+    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[fits_in_lin_mem(buf, cnt)])]
     pub fn fits_in_lin_mem_usize(&self, buf: usize, cnt: usize) -> bool {
         let total_size = buf + cnt;
         if total_size >= self.memlen {
