@@ -239,7 +239,7 @@ pub fn writeback_timeouts(
     $wk0(cx, out_ptr, pollfds, fd_data) = [true];
     $wk1(v, cx, out_ptr, pollfds, fd_data) = [true];
 )]
-#[sig(fn(&mut VmCtx[@cx], out_ptr: u32, &RVec<libc::pollfd>[@pollfds], &RVec<(u64, SubscriptionFdType)>[@fd_data]) -> RuntimeResult<u32{v: $wk1(v, cx, pollfds, fd_data)}>
+#[sig(fn(&mut VmCtx[@cx], out_ptr: u32, &RVec<libc::pollfd>[@pollfds], &RVec<(u64, SubscriptionFdType)>[@fd_data]) -> RuntimeResult<u32{v: $wk1(v, cx, out_ptr, pollfds, fd_data)}>
       requires $wk0(cx, out_ptr, pollfds, fd_data)
 )]
 pub fn writeback_fds(
