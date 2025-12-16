@@ -91,6 +91,9 @@ impl VmCtx {
 
     /// Check whether buffer is entirely within sandbox
     // Can I eliminate this in favor of fits_in_lin_mem_usize
+
+    // NOTE: Need to give the trusted annotation because we have a cycle otherwise
+    // and the saturation loop never gives up control.
     // #[vars(
     //     $wk0(ctx, buf, cnt) = [true];
     //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
@@ -108,6 +111,7 @@ impl VmCtx {
         self.in_lin_mem(buf) && self.in_lin_mem(cnt) && buf <= buf + cnt
     }
 
+    // NOTE: see fits_in_lin_mem
     // #[vars(
     //     $wk0(ctx, buf, cnt) = [true];
     //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];

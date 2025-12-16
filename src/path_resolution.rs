@@ -101,8 +101,7 @@ pub fn resolve_path(
         out_path.size == out_path.ns_prefix
     ];
 )]
-#[sig(fn(&mut FOwnedComponents[@out_path], linkpath: FOwnedComponents, &mut isize, dirfd:HostFd)
-      requires $wk0(out_path, linkpath, dirfd)
+#[sig(fn(&mut FOwnedComponents{out_path: $wk0(out_path, linkpath, dirfd)}, linkpath: FOwnedComponents, &mut isize, dirfd:HostFd)
 )]
 fn expand_symlink(
     out_path: &mut FOwnedComponents,
