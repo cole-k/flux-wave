@@ -28,7 +28,15 @@ use std::convert::TryFrom;
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &strg VmCtx[@cx], v_dir_fd: u32, dirflags: u32, pathname: u32, path_len: u32, oflags: u32, fdflags: i32) -> Result<u32, RuntimeError> ensures ctx: VmCtx)]
+#[vars(
+    $wk0(cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags) = [true];
+    $wk1(v, cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags) = [true];
+)]
+#[sig(fn (ctx: &strg VmCtx[@cx], v_dir_fd: u32, dirflags: u32, pathname: u32, path_len: u32, oflags: u32, fdflags: i32)
+          -> Result<u32{v: $wk1(v, cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags)}, RuntimeError>
+      requires $wk0(cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags)
+      ensures ctx: VmCtx
+)]
 pub fn wasi_path_open(
     ctx: &mut VmCtx,
     v_dir_fd: u32,
@@ -73,7 +81,15 @@ pub fn wasi_path_open(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: u32) -> Result<u32, RuntimeError> ensures ctx: VmCtx)]
+#[vars(
+    $wk0(dummy, v_fd) = [true];
+    $wk1(v, dummy, v_fd) = [true];
+)]
+#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: u32)
+          -> Result<u32{v: $wk1(v, dummy, v_fd)}, RuntimeError>
+      requires $wk0(dummy, v_fd)
+      ensures ctx: VmCtx
+)]
 pub fn wasi_fd_close(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
     // can't  replace with fd_to_native until we fix question mark operator
     if v_fd >= MAX_SBOX_FDS {
@@ -105,7 +121,15 @@ pub fn wasi_fd_close(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
 //     pub iov_len: u32,
 // }
 
-#[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(d, v_fd, iovs, iovcnt) = [true];
+    $wk1(v, d, v_fd, iovs, iovcnt) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32)
+          -> Result<u32{v : $wk1(v, d, v_fd, iovs, iovcnt)}, RuntimeError>
+      requires $wk0(d, v_fd, iovs, iovcnt)
+      ensures d: VmCtx
+)]
 pub fn wasi_fd_read(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -125,7 +149,15 @@ pub fn wasi_fd_read(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 
-#[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(d, v_fd, iovs, iovcnt) = [true];
+    $wk1(v, d, v_fd, iovs, iovcnt) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32)
+          -> Result<u32{v : $wk1(v, d, v_fd, iovs, iovcnt)}, RuntimeError>
+      requires $wk0(d, v_fd, iovs, iovcnt)
+      ensures d: VmCtx
+)]
 pub fn wasi_fd_write(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -148,6 +180,14 @@ pub fn wasi_fd_write(
 // #[ensures(trace_safe(trace, ctx))]
 // // #[ensures(v_fd < MAX_SBOX_FDS && ctx.fdmap.contains(v_fd) ==> effects!(old(trace), trace, Effect::FdAccess))]
 // // #[ensures(v_fd >= MAX_SBOX_FDS ==> effects!(old(trace), trace))]
+#[vars(
+    $wk0(cx, v_fd, v_filedelta, v_whence) = [true];
+    $wk1(v, cx, v_fd, v_filedelta, v_whence) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, v_filedelta: i64, v_whence: u32)
+          -> Result<u32{v : $wk1(v, cx, v_fd, v_filedelta, v_whence)}, RuntimeError>
+      requires $wk0(cx, v_fd, v_filedelta, v_whence)
+)]
 pub fn wasi_fd_seek(ctx: &VmCtx, v_fd: u32, v_filedelta: i64, v_whence: u32) -> RuntimeResult<u64> {
     let whence = Whence::from_u32(v_whence).ok_or(Einval)?;
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -163,6 +203,13 @@ pub fn wasi_fd_seek(ctx: &VmCtx, v_fd: u32, v_filedelta: i64, v_whence: u32) -> 
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 
+#[vars(
+    $wk0(d, v_fd) = [true];
+    $wk1(v, v_fd) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+          -> Result<u64{v : $wk1(v, v_fd)}, RuntimeError>
+)]
 pub fn wasi_fd_tell(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u64> {
     wasi_fd_seek(ctx, v_fd, 0, 1) // Whence::Cur
 }
@@ -175,6 +222,14 @@ pub fn wasi_fd_tell(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u64> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(cx, v_fd, offset, len, v_advice) = [true];
+    $wk1(v, cx, v_fd, offset, len, v_advice) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, offset: u64, len: u64, v_advice: u32)
+          -> Result<u32{v : $wk1(v, cx, v_fd, offset, len, v_advice)}, RuntimeError>
+      requires $wk0(cx, v_fd, offset, len, v_advice)
+)]
 pub fn wasi_fd_advise(
     ctx: &VmCtx,
     v_fd: u32,
@@ -196,6 +251,14 @@ pub fn wasi_fd_advise(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(cx, v_fd, offset, len) = [true];
+    $wk1(v, cx, v_fd, offset, len) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, offset: u64, len: u64)
+          -> Result<u32{v : $wk1(v, cx, v_fd, offset, len)}, RuntimeError>
+      requires $wk0(cx, v_fd, offset, len)
+)]
 pub fn wasi_fd_allocate(ctx: &VmCtx, v_fd: u32, offset: u64, len: u64) -> RuntimeResult<u32> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
 
@@ -210,6 +273,12 @@ pub fn wasi_fd_allocate(ctx: &VmCtx, v_fd: u32, offset: u64, len: u64) -> Runtim
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(d, v_fd) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+          -> Result<(), RuntimeError>
+)]
 pub fn wasi_fd_sync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<()> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let _ = trace_sync(ctx, fd)?;
@@ -223,6 +292,13 @@ pub fn wasi_fd_sync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<()> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(d, v_fd) = [true];
+    $wk1(v, v_fd) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+          -> Result<u32{v : $wk1(v, v_fd)}, RuntimeError>
+)]
 pub fn wasi_fd_datasync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u32> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let ret = trace_datasync(ctx, fd)?;
@@ -237,6 +313,12 @@ pub fn wasi_fd_datasync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u32> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(d, v_fd) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+          -> Result<FdStat, RuntimeError>
+)]
 pub fn wasi_fd_fdstat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FdStat> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let mut stat = fresh_stat();
@@ -262,7 +344,14 @@ pub fn wasi_fd_fdstat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FdStat> {
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // can only adjust Fdflags using set_flags, not O_flags or any other flags
-#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, v_flags: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(d, v_fd, v_flags) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, v_flags: u32)
+          -> Result<(), RuntimeError>
+      requires $wk0(d, v_fd, v_flags)
+      ensures d: VmCtx
+)]
 pub fn wasi_fd_fdstat_set_flags(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -284,6 +373,12 @@ pub fn wasi_fd_fdstat_set_flags(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_fd) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_fd: u32) -> Result<FileStat, RuntimeError>
+      requires $wk0(ctx, v_fd)
+)]
 pub fn wasi_fd_filestat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FileStat> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let mut stat = fresh_stat();
@@ -301,6 +396,12 @@ pub fn wasi_fd_filestat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FileStat> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_fd, size) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_fd: u32, size: i64) -> RuntimeResult<()>
+      requires $wk0(ctx, v_fd, size)
+)]
 pub fn wasi_fd_filestat_set_size(ctx: &VmCtx, v_fd: u32, size: i64) -> RuntimeResult<()> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let _ = trace_ftruncate(ctx, fd, size)?;
@@ -317,7 +418,12 @@ pub fn wasi_fd_filestat_set_size(ctx: &VmCtx, v_fd: u32, size: i64) -> RuntimeRe
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, v_atim: u64, v_mtim: u64, v_fst_flags: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, v_atim, v_mtim, v_fst_flags) = [true];
+)]
+#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, v_atim: u64, v_mtim: u64, v_fst_flags: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, v_fd, v_atim, v_mtim, v_fst_flags)
+)]
 pub fn wasi_fd_filestat_set_times(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -346,7 +452,13 @@ pub fn wasi_fd_filestat_set_times(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, iovs, iovcnt, offset) = [true];
+    $wk1(v, dummy, v_fd, iovs, iovcnt, offset) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, iovs, iovcnt, offset)}, RuntimeError>
+      requires $wk0(dummy, v_fd, iovs, iovcnt, offset)
+)]
 pub fn wasi_fd_pread(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -371,6 +483,12 @@ pub fn wasi_fd_pread(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(v_fd, path, _path_len) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx, v_fd: u32, path: u32, _path_len: u32) -> RuntimeResult<()>
+      requires $wk0(v_fd, path, _path_len)
+)]
 pub fn wasi_prestat_dirname(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -399,7 +517,13 @@ pub fn wasi_prestat_dirname(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd) = [true];
+    $wk1(v, dummy, v_fd) = [true];
+)]
+#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32) -> Result<u32{v: $wk1(v, dummy, v_fd)}, RuntimeError>
+      requires $wk0(dummy, v_fd)
+)]
 pub fn wasi_fd_prestat_get(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
     if v_fd == HOMEDIR_FD {
         return Ok(ctx.homedir.len() as u32);
@@ -413,7 +537,13 @@ pub fn wasi_fd_prestat_get(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeErr
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, iovs, iovcnt, offset) = [true];
+    $wk1(v, dummy, v_fd, iovs, iovcnt, offset) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, iovs, iovcnt, offset)}, RuntimeError>
+      requires $wk0(dummy, v_fd, iovs, iovcnt, offset)
+)]
 pub fn wasi_fd_pwrite(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -438,7 +568,12 @@ pub fn wasi_fd_pwrite(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 
-#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, pathname, path_len) = [true];
+)]
+#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, v_fd, pathname, path_len)
+)]
 pub fn wasi_path_create_directory(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -471,6 +606,12 @@ pub fn wasi_path_create_directory(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_fd, flags, pathname, path_len) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_fd: u32, flags: u32, pathname: u32, path_len: u32) -> RuntimeResult<FileStat>
+      requires $wk0(ctx, v_fd, flags, pathname, path_len,)
+)]
 pub fn wasi_path_filestat_get(
     ctx: &VmCtx,
     v_fd: u32,
@@ -516,6 +657,12 @@ pub fn wasi_path_filestat_get(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_fd, flags, pathname, path_len, atim, mtim, v_fst_flags) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_fd: u32, flags: u32, pathname: u32, path_len: u32, atim: u64, mtim: u64, v_fst_flags: u32) -> RuntimeResult<()>
+      requires $wk0(ctx, v_fd, flags, pathname, path_len, atim, mtim, v_fst_flags)
+)]
 pub fn wasi_path_filestat_set_times(
     ctx: &VmCtx,
     v_fd: u32,
@@ -576,6 +723,12 @@ pub fn wasi_path_filestat_set_times(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_old_fd, flags, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_old_fd: u32, flags: u32, old_pathname: u32, old_path_len: u32, v_new_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
+      requires $wk0(ctx, v_old_fd, flags, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len)
+)]
 pub fn wasi_path_link(
     ctx: &VmCtx,
     v_old_fd: u32,
@@ -585,7 +738,7 @@ pub fn wasi_path_link(
     v_new_fd: u32,
     new_pathname: u32,
     new_path_len: u32,
-) -> RuntimeResult<()> {
+)-> RuntimeResult<()> {
     let flags = LookupFlags::new(flags);
 
     // let old_fd = ctx.fdmap.fd_to_native(v_old_fd)?;
@@ -639,7 +792,13 @@ pub fn wasi_path_link(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32, ptr: u32, len: u32) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(cx, v_fd, pathname, path_len, ptr, len) = [true];
+    $wk1(v, cx, v_fd, pathname, path_len, ptr, len) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32, ptr: u32, len: u32) -> Result<u32{v: $wk1(v, cx, v_fd, pathname, path_len, ptr, len)}, RuntimeError>
+      requires $wk0(cx, v_fd, pathname, path_len, ptr, len)
+)]
 pub fn wasi_path_readlink(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -676,7 +835,12 @@ pub fn wasi_path_readlink(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(cx, v_fd, pathname, path_len) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
+      requires $wk0(cx, v_fd, pathname, path_len)
+)]
 pub fn wasi_path_remove_directory(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -712,6 +876,12 @@ pub fn wasi_path_remove_directory(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, v_old_fd, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], v_old_fd: u32, old_pathname: u32, old_path_len: u32, v_new_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
+      requires $wk0(ctx, v_old_fd, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len)
+)]
 pub fn wasi_path_rename(
     ctx: &VmCtx,
     v_old_fd: u32,
@@ -750,6 +920,12 @@ pub fn wasi_path_rename(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, old_pathname, old_path_len, v_fd, new_pathname, new_path_len) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], old_pathname: u32, old_path_len: u32, v_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
+      requires $wk0(ctx, old_pathname, old_path_len, v_fd, new_pathname, new_path_len)
+)]
 pub fn wasi_path_symlink(
     ctx: &VmCtx,
     old_pathname: u32,
@@ -781,7 +957,12 @@ pub fn wasi_path_symlink(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, pathname, path_len) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, v_fd, pathname, path_len)
+)]
 pub fn wasi_path_unlink_file(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -811,6 +992,12 @@ pub fn wasi_path_unlink_file(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, clock_id) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], clock_id: u32) -> RuntimeResult<Timestamp>
+      requires $wk0(ctx, clock_id)
+)]
 pub fn wasi_clock_res_get(ctx: &VmCtx, clock_id: u32) -> RuntimeResult<Timestamp> {
     let id = ClockId::try_from(clock_id)?;
     let mut spec = fresh_libc_timespec();
@@ -827,6 +1014,12 @@ pub fn wasi_clock_res_get(ctx: &VmCtx, clock_id: u32) -> RuntimeResult<Timestamp
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+#[vars(
+    $wk0(ctx, clock_id, _precision) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx], clock_id: u32, _precision: u64) -> RuntimeResult<Timestamp>
+      requires $wk0(ctx, clock_id, _precision)
+)]
 pub fn wasi_clock_time_get(
     ctx: &VmCtx,
     clock_id: u32,
@@ -846,6 +1039,12 @@ pub fn wasi_clock_time_get(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[vars(
+    $wk0(_ctx, _rval) = [true];
+)]
+#[sig(fn (&VmCtx[@_ctx], _rval: u32) -> RuntimeResult<()>
+      requires $wk0(_ctx, _rval)
+)]
 pub fn wasi_proc_exit(_ctx: &VmCtx, _rval: u32) -> RuntimeResult<()> {
     Ok(())
 }
@@ -857,6 +1056,12 @@ pub fn wasi_proc_exit(_ctx: &VmCtx, _rval: u32) -> RuntimeResult<()> {
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[vars(
+    $wk0(_ctx, _signal) = [true];
+)]
+#[sig(fn (&VmCtx[@_ctx], _signal: u32) -> RuntimeResult<()>
+      requires $wk0(_ctx, _signal)
+)]
 pub fn wasi_proc_raise(_ctx: &VmCtx, _signal: u32) -> RuntimeResult<()> {
     Ok(())
 }
@@ -868,6 +1073,12 @@ pub fn wasi_proc_raise(_ctx: &VmCtx, _signal: u32) -> RuntimeResult<()> {
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[vars(
+    $wk0(_ctx) = [true];
+)]
+#[sig(fn (&VmCtx[@_ctx]) -> RuntimeResult<()>
+      requires $wk0(_ctx)
+)]
 pub fn wasi_sched_yield(_ctx: &VmCtx) -> RuntimeResult<()> {
     Ok(())
 }
@@ -880,7 +1091,12 @@ pub fn wasi_sched_yield(_ctx: &VmCtx) -> RuntimeResult<()> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], ptr: u32, len: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, ptr, len) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], ptr: u32, len: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, ptr, len)
+)]
 pub fn wasi_random_get(ctx: &mut VmCtx, ptr: u32, len: u32) -> Result<(), RuntimeError> {
     if !ctx.fits_in_lin_mem(ptr, len) {
         return Err(Efault);
@@ -898,7 +1114,12 @@ pub fn wasi_random_get(ctx: &mut VmCtx, ptr: u32, len: u32) -> Result<(), Runtim
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_from: u32, v_to: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_from, v_to) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_from: u32, v_to: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, v_from, v_to)
+)]
 pub fn wasi_fd_renumber(ctx: &mut VmCtx, v_from: u32, v_to: u32) -> Result<(), RuntimeError> {
     if v_from >= MAX_SBOX_FDS || v_to >= MAX_SBOX_FDS {
         return Err(Ebadf);
@@ -914,7 +1135,12 @@ pub fn wasi_fd_renumber(ctx: &mut VmCtx, v_from: u32, v_to: u32) -> Result<(), R
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], argv: u32, argv_buf: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, argv, argv_buf) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], argv: u32, argv_buf: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, argv, argv_buf)
+)]
 pub fn wasi_args_get(ctx: &mut VmCtx, argv: u32, argv_buf: u32) -> Result<(), RuntimeError> {
     // 1. copy argv_buffer
     let argv_buf_len = usize_as_u32(ctx.arg_buffer.len()); // FLUX-TODO2 as-u32;
@@ -964,7 +1190,12 @@ pub fn wasi_args_get(ctx: &mut VmCtx, argv: u32, argv_buf: u32) -> Result<(), Ru
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // // #[ensures(effects!(old(trace), trace))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], env: u32, env_buf: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, env, env_buf) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], env: u32, env_buf: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, env, env_buf)
+)]
 pub fn wasi_environ_get(ctx: &mut VmCtx, env: u32, env_buf: u32) -> Result<(), RuntimeError> {
     // 1. copy argv_buffer
     let env_buf_len = usize_as_u32(ctx.env_buffer.len()); // FLUX-TODO2: as-u32;
@@ -1011,6 +1242,14 @@ pub fn wasi_environ_get(ctx: &mut VmCtx, env: u32, env_buf: u32) -> Result<(), R
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[vars(
+    $wk0(ctx) = [true];
+    $wk1(v, ctx) = [true];
+    $wk2(v, ctx) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v, ctx)}, u32{v: $wk2(v, ctx)})>
+      requires $wk0(ctx)
+)]
 pub fn wasi_args_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     Ok((ctx.argc as u32, ctx.arg_buffer.len() as u32))
 }
@@ -1023,6 +1262,14 @@ pub fn wasi_args_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 // #[ensures(effects!(old(trace), trace))]
+#[vars(
+    $wk0(ctx) = [true];
+    $wk1(v, ctx) = [true];
+    $wk2(v, ctx) = [true];
+)]
+#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v, ctx)}, u32{v: $wk2(v, ctx)})>
+      requires $wk0(ctx)
+)]
 pub fn wasi_environ_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     Ok((ctx.envc as u32, ctx.env_buffer.len() as u32))
 }
@@ -1035,7 +1282,14 @@ pub fn wasi_environ_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, ri_data: u32, ri_data_count: u32, ri_flags: u32) -> Result<(u32, u32), RuntimeError>)]
+#[vars(
+    $wk0(dummy, v_fd, ri_data, ri_data_count, ri_flags) = [true];
+    $wk1(v, dummy, v_fd, ri_data, ri_data_count, ri_flags) = [true];
+    $wk2(v, dummy, v_fd, ri_data, ri_data_count, ri_flags) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, ri_data: u32, ri_data_count: u32, ri_flags: u32) -> Result<(u32{v: $wk1(v, dummy, v_fd, ri_data, ri_data_count, ri_flags)}, u32{v: $wk2(v, dummy, v_fd, ri_data, ri_data_count, ri_flags)}), RuntimeError>
+      requires $wk0(dummy, v_fd, ri_data, ri_data_count, ri_flags)
+)]
 pub fn wasi_sock_recv(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -1077,7 +1331,13 @@ pub fn wasi_sock_recv(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, si_data: u32, si_data_count: u32, si_flags: u32) -> Result<u32, RuntimeError>)]
+#[vars(
+    $wk0(cx, v_fd, si_data, si_data_count, si_flags) = [true];
+    $wk1(v, cx, v_fd, si_data, si_data_count, si_flags) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, si_data: u32, si_data_count: u32, si_flags: u32) -> Result<u32{v: $wk1(v, cx, v_fd, si_data, si_data_count, si_flags)}, RuntimeError>
+      requires $wk0(cx, v_fd, si_data, si_data_count, si_flags)
+)]
 pub fn wasi_sock_send(
     ctx: &mut VmCtx,
     v_fd: u32,
@@ -1118,7 +1378,12 @@ pub fn wasi_sock_send(
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
 
-#[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, v_how: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(cx, v_fd, v_how) = [true];
+)]
+#[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, v_how: u32) -> Result<(), RuntimeError>
+      requires $wk0(cx, v_fd, v_how)
+)]
 pub fn wasi_sock_shutdown(ctx: &VmCtx, v_fd: u32, v_how: u32) -> Result<(), RuntimeError> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
     let how = SdFlags::new(v_how);
@@ -1145,6 +1410,15 @@ pub fn wasi_sock_shutdown(ctx: &VmCtx, v_fd: u32, v_how: u32) -> Result<(), Runt
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
+
+// NOTE: Errors when this is not trusted or given the below signature
+#[vars(
+    $wk0(in_ptr, out_ptr, nsubscriptions) = [true];
+    $wk1(v, in_ptr, out_ptr, nsubscriptions) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx, in_ptr: u32, out_ptr: u32, nsubscriptions: u32) -> RuntimeResult<u32{v: $wk1(v, in_ptr, out_ptr, nsubscriptions)}>
+      requires $wk0(in_ptr, out_ptr, nsubscriptions)
+)]
 pub fn wasi_poll_oneoff(
     ctx: &mut VmCtx,
     in_ptr: u32,
@@ -1219,7 +1493,14 @@ pub fn wasi_poll_oneoff(
 // #[ensures(trace_safe(trace, ctx))]
 // TODO: I'm not confident this works for multiple consecutive readdir calls to the same dir
 // Correct behavior: truncate final entry
-#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: SboxFd, buf: SboxFd, buf_len: usize, cookie: u64) -> Result<u32, RuntimeError> ensures ctx: VmCtx)]
+#[vars(
+    $wk0(dummy, v_fd, buf, buf_len, cookie) = [true];
+    $wk1(v, dummy, v_fd, buf, buf_len, cookie) = [true];
+)]
+#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: SboxFd, buf: SboxFd, buf_len: usize, cookie: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, buf, buf_len, cookie)}, RuntimeError>
+      requires $wk0(dummy, v_fd, buf, buf_len, cookie)
+      ensures ctx: VmCtx
+)]
 pub fn wasi_fd_readdir(
     ctx: &mut VmCtx,
     v_fd: SboxFd,
@@ -1307,7 +1588,14 @@ pub fn wasi_fd_readdir(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &strg VmCtx[@dummy], domain: u32, ty: u32, protocol: u32) -> Result<u32, RuntimeError> ensures ctx: VmCtx)]
+#[vars(
+    $wk0(dummy, domain, ty, protocol) = [true];
+    $wk1(v, dummy, domain, ty, protocol) = [true];
+)]
+#[sig(fn (ctx: &strg VmCtx[@dummy], domain: u32, ty: u32, protocol: u32) -> Result<u32{v: $wk1(v, dummy, domain, ty, protocol)}, RuntimeError>
+      requires $wk0(dummy, domain, ty, protocol)
+      ensures ctx: VmCtx
+)]
 pub fn wasi_socket(
     ctx: &mut VmCtx,
     domain: u32,
@@ -1347,7 +1635,12 @@ pub fn wasi_socket(
 // #[requires(trace_safe(trace, ctx))]
 // #[ensures(ctx_safe(ctx))]
 // #[ensures(trace_safe(trace, ctx))]
-#[sig(fn (ctx: &mut VmCtx[@dummy], sockfd: u32, addr: u32, addrlen: u32) -> Result<(), RuntimeError>)]
+#[vars(
+    $wk0(dummy, sockfd, addr, addrlen) = [true];
+)]
+#[sig(fn (ctx: &mut VmCtx[@dummy], sockfd: u32, addr: u32, addrlen: u32) -> Result<(), RuntimeError>
+      requires $wk0(dummy, sockfd, addr, addrlen)
+)]
 pub fn wasi_sock_connect(
     ctx: &mut VmCtx,
     sockfd: u32,
