@@ -41,8 +41,8 @@ pub use platform::*;
     ];
     $wk1(v, cx, dir_fd, path, flags) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], path: HostPath, flags: i32) -> Result<usize{v: $wk1(v, cx, dir_fd, path, flags)}, RuntimeError>
-      requires $wk0(cx, dir_fd, path, flags)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], path: HostPath, flags: i32) -> Result<usize{v: $wk1(v)[cx, dir_fd, path, flags]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, path, flags]
 )]
 pub fn trace_openat(
     ctx: &VmCtx,
@@ -65,8 +65,8 @@ pub fn trace_openat(
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@fd]) -> Result<usize{v: $wk1(v, cx, fd)}, RuntimeError>
-      requires $wk0(cx, fd)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@fd]) -> Result<usize{v: $wk1(v)[cx, fd]}, RuntimeError>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_close(ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     let os_fd: usize = fd.to_raw();
@@ -87,8 +87,8 @@ pub fn trace_close(ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     $wk0(cx, fd, ptr, cnt) = [fits_in_lin_mem(ptr, cnt), cnt < LINEAR_MEM_SIZE];
     $wk1(v, cx, fd, ptr, cnt) = [true];
 )]
-#[sig(fn(ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v, cx, fd, ptr, cnt)}, RuntimeError>
-      requires $wk0(cx, fd, ptr, cnt)
+#[sig(fn(ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v)[cx, fd, ptr, cnt]}, RuntimeError>
+      requires $wk0()[cx, fd, ptr, cnt]
 )]
 pub fn trace_read(
     ctx: &mut VmCtx,
@@ -124,8 +124,8 @@ pub fn trace_read(
     $wk0(cx, fd, iovs, iovcnt) = [true];
     $wk1(v, cx, fd, iovs, iovcnt) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize) -> Result<usize{v: $wk1(v, cx, fd, iovs, iovcnt)}, RuntimeError>
-      requires $wk0(cx, fd, iovs, iovcnt)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize) -> Result<usize{v: $wk1(v)[cx, fd, iovs, iovcnt]}, RuntimeError>
+      requires $wk0()[cx, fd, iovs, iovcnt]
 )]
 pub fn trace_readv(
     ctx: &mut VmCtx,
@@ -161,8 +161,8 @@ pub fn trace_readv(
     $wk0(cx, fd, ptr, cnt, offset) = [fits_in_lin_mem(ptr, cnt), cnt < LINEAR_MEM_SIZE];
     $wk1(v, cx, fd, ptr, cnt, offset) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize, offset: usize) -> Result<usize{v: $wk1(v, cx, fd, ptr, cnt, offset)}, RuntimeError>
-      requires $wk0(cx, fd, ptr, cnt, offset)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize, offset: usize) -> Result<usize{v: $wk1(v)[cx, fd, ptr, cnt, offset]}, RuntimeError>
+      requires $wk0()[cx, fd, ptr, cnt, offset]
 )]
 pub fn trace_pread(
     ctx: &mut VmCtx,
@@ -198,8 +198,8 @@ pub fn trace_pread(
     $wk0(cx, fd, iovs, iovcnt, offset) = [true];
     $wk1(v, cx, fd, iovs, iovcnt, offset) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize, offset: usize) -> Result<usize{v: $wk1(v, cx, fd, iovs, iovcnt, offset)}, RuntimeError>
-      requires $wk0(cx, fd, iovs, iovcnt, offset)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize, offset: usize) -> Result<usize{v: $wk1(v)[cx, fd, iovs, iovcnt, offset]}, RuntimeError>
+      requires $wk0()[cx, fd, iovs, iovcnt, offset]
 )]
 pub fn trace_preadv(
     ctx: &mut VmCtx,
@@ -228,8 +228,8 @@ pub fn trace_preadv(
     $wk0(cx, fd, ptr, cnt) = [fits_in_lin_mem(ptr, cnt), cnt < LINEAR_MEM_SIZE];
     $wk1(v, cx, fd, ptr, cnt) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v, cx, fd, ptr, cnt)}, RuntimeError>
-      requires $wk0(cx, fd, ptr, cnt)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v)[cx, fd, ptr, cnt]}, RuntimeError>
+      requires $wk0()[cx, fd, ptr, cnt]
 )]
 pub fn trace_write(
     ctx: &mut VmCtx,
@@ -264,8 +264,8 @@ pub fn trace_write(
     $wk0(cx, fd, iovs, iovcnt) = [true];
     $wk1(v, cx, fd, iovs, iovcnt) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize) -> Result<usize{v: $wk1(v, cx, fd, iovs, iovcnt)}, RuntimeError>
-      requires $wk0(cx, fd, iovs, iovcnt)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize) -> Result<usize{v: $wk1(v)[cx, fd, iovs, iovcnt]}, RuntimeError>
+      requires $wk0()[cx, fd, iovs, iovcnt]
 )]
 pub fn trace_writev(
     ctx: &mut VmCtx,
@@ -302,8 +302,8 @@ pub fn trace_writev(
     $wk0(cx, fd, iovs, iovcnt, offset) = [true];
     $wk1(v, cx, fd, iovs, iovcnt, offset) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize, offset: usize) -> Result<usize{v: $wk1(v, cx, fd, iovs, iovcnt, offset)}, RuntimeError>
-      requires $wk0(cx, fd, iovs, iovcnt, offset)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, &RVec<WasmIoVec>[@iovs], iovcnt: usize, offset: usize) -> Result<usize{v: $wk1(v)[cx, fd, iovs, iovcnt, offset]}, RuntimeError>
+      requires $wk0()[cx, fd, iovs, iovcnt, offset]
 )]
 pub fn trace_pwritev(
     ctx: &mut VmCtx,
@@ -351,8 +351,8 @@ pub fn trace_pwritev(
     $wk0(cx, fd, offset, whence) = [true];
     $wk1(v, cx, fd, offset, whence) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, offset: i64, whence: i32) -> Result<usize{v: $wk1(v, cx, fd, offset, whence)}, RuntimeError>
-      requires $wk0(cx, fd, offset, whence)
+#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, offset: i64, whence: i32) -> Result<usize{v: $wk1(v)[cx, fd, offset, whence]}, RuntimeError>
+      requires $wk0()[cx, fd, offset, whence]
 )]
 pub fn trace_seek(
     ctx: &VmCtx,
@@ -375,8 +375,8 @@ pub fn trace_seek(
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd) -> RuntimeResult<usize{v: $wk1(v, cx, fd)}>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd) -> RuntimeResult<usize{v: $wk1(v)[cx, fd]}>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_sync(_ctx: &VmCtx, fd: HostFd) -> RuntimeResult<usize> {
     let os_fd: usize = fd.to_raw();
@@ -394,8 +394,8 @@ pub fn trace_sync(_ctx: &VmCtx, fd: HostFd) -> RuntimeResult<usize> {
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd) -> Result<usize{v: $wk1(v, cx, fd)}, RuntimeError>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd) -> Result<usize{v: $wk1(v)[cx, fd]}, RuntimeError>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_datasync(_ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     let os_fd: usize = fd.to_raw();
@@ -413,8 +413,8 @@ pub fn trace_datasync(_ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd, stat: &mut libc::stat) -> Result<usize{v: $wk1(v, cx, fd)}, RuntimeError>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd, stat: &mut libc::stat) -> Result<usize{v: $wk1(v)[cx, fd]}, RuntimeError>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_fstat(_ctx: &VmCtx, fd: HostFd, stat: &mut libc::stat) -> Result<usize, RuntimeError> {
     let os_fd: usize = fd.to_raw();
@@ -440,8 +440,8 @@ pub fn trace_fstat(_ctx: &VmCtx, fd: HostFd, stat: &mut libc::stat) -> Result<us
     ];
     $wk1(v, cx, fd, path, flags) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@fd], path: HostPath, stat: &mut stat, flags: i32) -> Result<usize{v: $wk1(v, cx, fd, path, flags)}, RuntimeError>
-      requires $wk0(cx, fd, path, flags)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@fd], path: HostPath, stat: &mut stat, flags: i32) -> Result<usize{v: $wk1(v)[cx, fd, path, flags]}, RuntimeError>
+      requires $wk0()[cx, fd, path, flags]
 )]
 pub fn trace_fstatat(
     ctx: &VmCtx,
@@ -465,8 +465,8 @@ pub fn trace_fstatat(
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd) -> Result<usize{v: $wk1(v, cx, fd)}, RuntimeError>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd) -> Result<usize{v: $wk1(v)[cx, fd]}, RuntimeError>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_fgetfl(_ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     let os_fd: usize = fd.to_raw();
@@ -484,8 +484,8 @@ pub fn trace_fgetfl(_ctx: &VmCtx, fd: HostFd) -> Result<usize, RuntimeError> {
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd, flags: libc::c_int) -> RuntimeResult<usize{v: $wk1(v, cx, fd)}>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd, flags: libc::c_int) -> RuntimeResult<usize{v: $wk1(v)[cx, fd]}>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_fsetfl(_ctx: &VmCtx, fd: HostFd, flags: libc::c_int) -> RuntimeResult<usize> {
     let os_fd: usize = fd.to_raw();
@@ -503,8 +503,8 @@ pub fn trace_fsetfl(_ctx: &VmCtx, fd: HostFd, flags: libc::c_int) -> RuntimeResu
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd, length: libc::off_t) -> RuntimeResult<usize{v: $wk1(v, cx, fd)}>
-      requires $wk0(cx, fd)
+#[sig(fn (&VmCtx[@cx], fd: HostFd, length: libc::off_t) -> RuntimeResult<usize{v: $wk1(v)[cx, fd]}>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_ftruncate(_ctx: &VmCtx, fd: HostFd, length: libc::off_t) -> RuntimeResult<usize> {
     let os_fd: usize = fd.to_raw();
@@ -537,8 +537,8 @@ pub fn trace_ftruncate(_ctx: &VmCtx, fd: HostFd, length: libc::off_t) -> Runtime
     ];
     $wk1(v, cx, old_fd, old_path, new_fd, new_path, flags) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@old_fd], HostPath[@old_path], HostFd[@new_fd], HostPath[@new_path], flags: i32) -> Result<usize{v: $wk1(v, cx, old_fd, old_path, new_fd, new_path, flags)}, RuntimeError>
-      requires $wk0(cx, old_fd, old_path, new_fd, new_path, flags)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@old_fd], HostPath[@old_path], HostFd[@new_fd], HostPath[@new_path], flags: i32) -> Result<usize{v: $wk1(v)[cx, old_fd, old_path, new_fd, new_path, flags]}, RuntimeError>
+      requires $wk0()[cx, old_fd, old_path, new_fd, new_path, flags]
 )]
 pub fn trace_linkat(
     ctx: &VmCtx,
@@ -575,8 +575,8 @@ pub fn trace_linkat(
     ];
     $wk1(v, cx, dir_fd, path, mode) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], mode: mode_t) -> Result<usize{v: $wk1(v, cx, dir_fd, path, mode)}, RuntimeError>
-      requires $wk0(cx, dir_fd, path, mode)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], mode: mode_t) -> Result<usize{v: $wk1(v)[cx, dir_fd, path, mode]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, path, mode]
 )]
 pub fn trace_mkdirat(
     ctx: &VmCtx,
@@ -611,8 +611,8 @@ pub fn trace_mkdirat(
     ];
     $wk1(v, cx, dir_fd, pathname, ptr, cnt) = [true];
 )]
-#[sig(fn(ctx: &mut VmCtx[@cx], HostFd[@dir_fd], HostPath[@pathname], ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v, cx, dir_fd, pathname, ptr, cnt)}, RuntimeError>
-      requires $wk0(cx, dir_fd, pathname, ptr, cnt)
+#[sig(fn(ctx: &mut VmCtx[@cx], HostFd[@dir_fd], HostPath[@pathname], ptr: SboxPtr, cnt: usize) -> Result<usize{v: $wk1(v)[cx, dir_fd, pathname, ptr, cnt]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, pathname, ptr, cnt]
 )]
 pub fn trace_readlinkat(
     ctx: &mut VmCtx,
@@ -645,8 +645,8 @@ pub fn trace_readlinkat(
     ];
     $wk1(v, cx, dir_fd, path) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], flags: c_int) -> Result<usize{v: $wk1(v, cx, dir_fd, path)}, RuntimeError>
-      requires $wk0(cx, dir_fd, path)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], flags: c_int) -> Result<usize{v: $wk1(v)[cx, dir_fd, path]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, path]
 )]
 pub fn trace_unlinkat(
     ctx: &VmCtx,
@@ -683,8 +683,8 @@ pub fn trace_unlinkat(
     ];
     $wk1(v, cx, old_fd, old_path, new_fd, new_path) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostFd[@old_fd], HostPath[@old_path], HostFd[@new_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(v, cx, old_fd, old_path, new_fd, new_path)}, RuntimeError>
-      requires $wk0(cx, old_fd, old_path, new_fd, new_path)
+#[sig(fn (ctx: &VmCtx[@cx], HostFd[@old_fd], HostPath[@old_path], HostFd[@new_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(v)[cx, old_fd, old_path, new_fd, new_path]}, RuntimeError>
+      requires $wk0()[cx, old_fd, old_path, new_fd, new_path]
 )]
 pub fn trace_renameat(
     ctx: &VmCtx,
@@ -722,10 +722,10 @@ pub fn trace_renameat(
         new_path.non_symlink,
         new_path.non_symlink_prefixes
     ];
-    $wk1(cx, dir_fd, old_path, new_path) = [true];
+    $wk1(v, cx, dir_fd, old_path, new_path) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], HostPath[@old_path], HostFd[@dir_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(cx, dir_fd, old_path, new_path)}, RuntimeError>
-      requires $wk0(cx, dir_fd, old_path, new_path)
+#[sig(fn (ctx: &VmCtx[@cx], HostPath[@old_path], HostFd[@dir_fd], HostPath[@new_path]) -> Result<usize{v: $wk1(v)[cx, dir_fd, old_path, new_path]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, old_path, new_path]
 )]
 pub fn trace_symlinkat(
     ctx: &VmCtx,
@@ -751,8 +751,8 @@ pub fn trace_symlinkat(
     $wk0(cx, fd, specs) = [2 <= specs];
     $wk1(v, cx, fd, specs) = [true];
 )]
-#[sig(fn (&VmCtx[@cx], fd: HostFd, &RVec<timespec>[@specs]) -> Result<usize{v: $wk1(v, cx, fd, specs)}, RuntimeError>
-          requires $wk0(cx, fd, specs)
+#[sig(fn (&VmCtx[@cx], fd: HostFd, &RVec<timespec>[@specs]) -> Result<usize{v: $wk1(v)[cx, fd, specs]}, RuntimeError>
+          requires $wk0()[cx, fd, specs]
 )]
 pub fn trace_futimens(
     _ctx: &VmCtx,
@@ -784,8 +784,8 @@ pub fn trace_futimens(
     ];
     $wk1(v, cx, dir_fd, path, specs, flags) = [true];
 )]
-#[sig(fn(ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], &RVec<timespec>[@specs], flags: i32) -> Result<usize{v: $wk1(v, cx, dir_fd, path, specs, flags)}, RuntimeError>
-      requires $wk0(cx, dir_fd, path, specs, flags)
+#[sig(fn(ctx: &VmCtx[@cx], HostFd[@dir_fd], HostPath[@path], &RVec<timespec>[@specs], flags: i32) -> Result<usize{v: $wk1(v)[cx, dir_fd, path, specs, flags]}, RuntimeError>
+      requires $wk0()[cx, dir_fd, path, specs, flags]
 )]
 pub fn trace_utimensat(
     ctx: &VmCtx,
@@ -815,8 +815,8 @@ pub fn trace_utimensat(
     ];
     $wk1(v, cx, ptr, cnt, flags) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], ptr: SboxPtr, usize[@cnt], flags: u32) -> Result<usize{v: $wk1(v, cx, ptr, cnt, flags)}, RuntimeError>
-      requires $wk0(cx, ptr, cnt, flags)
+#[sig(fn (ctx: &mut VmCtx[@cx], ptr: SboxPtr, usize[@cnt], flags: u32) -> Result<usize{v: $wk1(v)[cx, ptr, cnt, flags]}, RuntimeError>
+      requires $wk0()[cx, ptr, cnt, flags]
 )]
 pub fn trace_getrandom(
     ctx: &mut VmCtx,
@@ -846,8 +846,8 @@ pub fn trace_getrandom(
     ];
     $wk1(v, cx, fd, ptr, cnt, flags) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, usize[@cnt], flags: i32) -> Result<usize{v: $wk1(v, cx, fd, ptr, cnt, flags)}, RuntimeError>
-      requires $wk0(cx, fd, ptr, cnt, flags)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, usize[@cnt], flags: i32) -> Result<usize{v: $wk1(v)[cx, fd, ptr, cnt, flags]}, RuntimeError>
+      requires $wk0()[cx, fd, ptr, cnt, flags]
 )]
 pub fn trace_recv(
     ctx: &mut VmCtx,
@@ -877,8 +877,8 @@ pub fn trace_recv(
     ];
     $wk1(v, cx, fd, ptr, cnt, flags) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, usize[@cnt], flags: i32) -> Result<usize{v: $wk1(v, cx, fd, ptr, cnt, flags)}, RuntimeError>
-      requires $wk0(cx, fd, ptr, cnt, flags)
+#[sig(fn (ctx: &mut VmCtx[@cx], fd: HostFd, ptr: SboxPtr, usize[@cnt], flags: i32) -> Result<usize{v: $wk1(v)[cx, fd, ptr, cnt, flags]}, RuntimeError>
+      requires $wk0()[cx, fd, ptr, cnt, flags]
 )]
 pub fn trace_send(
     ctx: &mut VmCtx,
@@ -903,8 +903,8 @@ pub fn trace_send(
     $wk0(cx, fd) = [true];
     $wk1(v, cx, fd) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, how: libc::c_int) -> Result<usize{v: $wk1(v, cx, fd)}, RuntimeError>
-      requires $wk0(cx, fd)
+#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, how: libc::c_int) -> Result<usize{v: $wk1(v)[cx, fd]}, RuntimeError>
+      requires $wk0()[cx, fd]
 )]
 pub fn trace_shutdown(_ctx: &VmCtx, fd: HostFd, how: libc::c_int) -> RuntimeResult<usize> {
     let os_fd: usize = fd.to_raw();
@@ -922,8 +922,8 @@ pub fn trace_shutdown(_ctx: &VmCtx, fd: HostFd, how: libc::c_int) -> RuntimeResu
     $wk0(cx) = [true];
     $wk1(v, cx) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], &mut RVec<libc::pollfd>, timeout: libc::c_int) -> Result<usize{v: $wk1(v, cx)}, RuntimeError>
-      requires $wk0(cx)
+#[sig(fn (ctx: &VmCtx[@cx], &mut RVec<libc::pollfd>, timeout: libc::c_int) -> Result<usize{v: $wk1(v)[cx]}, RuntimeError>
+      requires $wk0()[cx]
 )]
 pub fn trace_poll(
     _ctx: &VmCtx,
@@ -945,8 +945,8 @@ pub fn trace_poll(
     $wk0(cx, fd, capacity, count) = [capacity >= count];
     $wk1(v, cx, fd, capacity, count) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, dirp: &mut RVec<u8>[@capacity], count: usize) -> Result<usize{v: $wk1(v, cx, fd, capacity, count)}, RuntimeError>
-      requires $wk0(cx, fd, capacity, count)
+#[sig(fn (ctx: &VmCtx[@cx], fd: HostFd, dirp: &mut RVec<u8>[@capacity], count: usize) -> Result<usize{v: $wk1(v)[cx, fd, capacity, count]}, RuntimeError>
+      requires $wk0()[cx, fd, capacity, count]
 )]
 pub fn trace_getdents64(
     _ctx: &VmCtx,
@@ -971,8 +971,8 @@ pub fn trace_getdents64(
     $wk0(cx, domain, ty, protocol) = [SockCreation(domain, ty)];
     $wk1(v, cx, domain, ty, protocol) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], domain: i32, ty: i32, protocol: i32) -> Result<usize{v: $wk1(v, cx, domain, ty, protocol)}, RuntimeError>
-      requires $wk0(cx, domain, ty, protocol)
+#[sig(fn (ctx: &VmCtx[@cx], domain: i32, ty: i32, protocol: i32) -> Result<usize{v: $wk1(v)[cx, domain, ty, protocol]}, RuntimeError>
+      requires $wk0()[cx, domain, ty, protocol]
 )]
 pub fn trace_socket(
     _ctx: &VmCtx,
@@ -995,8 +995,8 @@ pub fn trace_socket(
     $wk0(cx, sockfd, saddr, addrlen) = [addr_in_netlist(cx.net, saddr.addr, saddr.port)];
     $wk1(v, cx, sockfd, saddr, addrlen) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], sockfd: HostFd, addr: &SockAddr[@saddr], addrlen: u32) -> Result<usize{v: $wk1(v, cx, sockfd, saddr, addrlen)}, RuntimeError>
-      requires $wk0(cx, sockfd, saddr, addrlen)
+#[sig(fn (ctx: &VmCtx[@cx], sockfd: HostFd, addr: &SockAddr[@saddr], addrlen: u32) -> Result<usize{v: $wk1(v)[cx, sockfd, saddr, addrlen]}, RuntimeError>
+      requires $wk0()[cx, sockfd, saddr, addrlen]
 )]
 pub fn trace_connect(
     ctx: &VmCtx,
@@ -1021,8 +1021,8 @@ pub fn trace_connect(
     $wk0(cx, sockfd) = [true];
     $wk1(v, cx, sockfd) = [true];
 )]
-#[sig(fn (ctx: &VmCtx[@cx], sockfd: HostFd) -> Result<usize{v: $wk1(v, cx, sockfd)}, RuntimeError>
-      requires $wk0(cx, sockfd)
+#[sig(fn (ctx: &VmCtx[@cx], sockfd: HostFd) -> Result<usize{v: $wk1(v)[cx, sockfd]}, RuntimeError>
+      requires $wk0()[cx, sockfd]
 )]
 pub fn trace_fionread(_ctx: &VmCtx, sockfd: HostFd) -> RuntimeResult<usize> {
     let os_fd: usize = sockfd.to_raw();

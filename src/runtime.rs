@@ -70,8 +70,8 @@ impl VmCtx {
         $wk1(v, ctx, ptr) = [v == (0 <= ptr && ptr < LINEAR_MEM_SIZE)];
     )]
     #[sig(fn(&VmCtx[@ctx], ptr:SboxPtr) -> bool[#v]
-          requires $wk0(ctx, ptr)
-          ensures $wk1(v, ctx, ptr)
+          requires $wk0()[ctx, ptr]
+          ensures $wk1(v)[ctx, ptr]
     )]
     pub fn in_lin_mem(&self, ptr: SboxPtr) -> bool {
         (ptr as usize >= 0) && (ptr as usize) < self.memlen
@@ -82,8 +82,8 @@ impl VmCtx {
         $wk1(v, ctx, ptr) = [v == (0 <= ptr && ptr < LINEAR_MEM_SIZE)];
     )]
     #[sig(fn(&VmCtx[@ctx], ptr:usize) -> bool[#v]
-          requires $wk0(ctx, ptr)
-          ensures $wk1(v, ctx, ptr)
+          requires $wk0()[ctx, ptr]
+          ensures $wk1(v)[ctx, ptr]
     )]
     pub fn in_lin_mem_usize(&self, ptr: usize) -> bool {
         ptr >= 0 && ptr < self.memlen
@@ -94,15 +94,15 @@ impl VmCtx {
 
     // NOTE: Need to give the trusted annotation because we have a cycle otherwise
     // and the saturation loop never gives up control.
+    #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[fits_in_lin_mem(buf, cnt)])]
     // #[vars(
     //     $wk0(ctx, buf, cnt) = [true];
     //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
     // )]
     // #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[#v]
-    //       requires $wk0(ctx, buf, cnt)
-    //       ensures $wk1(v, ctx, buf, cnt)
+    //       requires $wk0()[ctx, buf, cnt]
+    //       ensures $wk1(v)[ctx, buf, cnt]
     // )]
-    #[sig(fn(&VmCtx[@ctx], buf: SboxPtr, cnt:u32) -> bool[fits_in_lin_mem(buf, cnt)])]
     pub fn fits_in_lin_mem(&self, buf: SboxPtr, cnt: u32) -> bool {
         let total_size = (buf as usize) + (cnt as usize);
         if total_size >= self.memlen {
@@ -112,15 +112,15 @@ impl VmCtx {
     }
 
     // NOTE: see fits_in_lin_mem
+    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[fits_in_lin_mem(buf, cnt)])]
     // #[vars(
     //     $wk0(ctx, buf, cnt) = [true];
     //     $wk1(v, ctx, buf, cnt) = [fits_in_lin_mem(buf, cnt)];
     // )]
     // #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[#v]
-    //       requires $wk0(ctx, buf, cnt)
-    //       ensures $wk1(v, ctx, buf, cnt)
+    //       requires $wk0()[ctx, buf, cnt]
+    //       ensures $wk1(v)[ctx, buf, cnt]
     // )]
-    #[sig(fn(&VmCtx[@ctx], buf: usize, cnt:usize) -> bool[fits_in_lin_mem(buf, cnt)])]
     pub fn fits_in_lin_mem_usize(&self, buf: usize, cnt: usize) -> bool {
         let total_size = buf + cnt;
         if total_size >= self.memlen {
@@ -135,8 +135,8 @@ impl VmCtx {
         $wk1(v, ctx, src, n) = [v == n];
     )]
     #[sig(fn(&VmCtx[@ctx], src:SboxPtr, n:u32) -> RVec<u8>[#v]
-          requires $wk0(ctx, src, n)
-          ensures $wk1(v, ctx, src, n)
+          requires $wk0()[ctx, src, n]
+          ensures $wk1(v)[ctx, src, n]
     )]
     pub fn copy_buf_from_sandbox(&self, src: SboxPtr, n: u32) -> RVec<u8> {
         let mut host_buffer: RVec<u8> = RVec::from_elem_n(0, n as usize);
@@ -167,7 +167,7 @@ impl VmCtx {
         $wk0(ctx, dst, n) = [ctx.arg_buf == n];
     )]
     #[sig(fn(&mut VmCtx[@ctx], dst:SboxPtr, n:u32) -> Result<(), RuntimeError>
-          requires $wk0(ctx, dst, n)
+          requires $wk0()[ctx, dst, n]
     )]
     pub fn copy_arg_buffer_to_sandbox(&mut self, dst: SboxPtr, n: u32) -> Result<(), RuntimeError> {
         if !self.fits_in_lin_mem(dst, n) {
@@ -183,7 +183,7 @@ impl VmCtx {
         $wk0(ctx, dst, n) = [ctx.arg_buf == n];
     )]
     #[sig(fn(&mut VmCtx[@ctx], dst:SboxPtr, n:u32) -> Result<(), RuntimeError>
-          requires $wk0(ctx, dst, n)
+          requires $wk0()[ctx, dst, n]
     )]
     pub fn copy_environ_buffer_to_sandbox(
         &mut self,
@@ -208,8 +208,8 @@ impl VmCtx {
         ];
     )]
     #[sig(fn(&VmCtx[@ctx], sbx:SboxPtr, n:u32, should_follow:bool, hostfd:HostFd)
-             -> Result<HostPath{v: $wk1(v, ctx, sbx, n, should_follow, hostfd)}, RuntimeError>
-          requires $wk0(ctx, sbx, n, should_follow, hostfd)
+             -> Result<HostPath{v: $wk1(v)[ctx, sbx, n, should_follow, hostfd]}, RuntimeError>
+          requires $wk0()[ctx, sbx, n, should_follow, hostfd]
     )]
     pub fn translate_path(
         &self,
@@ -236,8 +236,8 @@ impl VmCtx {
         $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u16[#v]
-          requires $wk0(ctx, cnt)
-          ensures  $wk1(v, ctx, cnt)
+          requires $wk0()[ctx, cnt]
+          ensures  $wk1(v)[ctx, cnt]
     )]
     pub fn read_u16(&self, start: usize) -> u16 {
         let bytes: [u8; 2] = [self.mem[start], self.mem[start + 1]];
@@ -251,8 +251,8 @@ impl VmCtx {
         $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u32[#v]
-          requires $wk0(ctx, cnt)
-          ensures  $wk1(v, ctx, cnt)
+          requires $wk0()[ctx, cnt]
+          ensures  $wk1(v)[ctx, cnt]
     )]
     pub fn read_u32(&self, start: usize) -> u32 {
         let bytes: [u8; 4] = [
@@ -272,8 +272,8 @@ impl VmCtx {
         $wk1(v, ctx, cnt) = [true];
     )]
     #[sig(fn(&VmCtx[@ctx], cnt:usize) -> u64[#v]
-          requires $wk0(ctx, cnt)
-          ensures  $wk1(v, ctx, cnt)
+          requires $wk0()[ctx, cnt]
+          ensures  $wk1(v)[ctx, cnt]
     )]
     pub fn read_u64(&self, start: usize) -> u64 {
         let bytes: [u8; 8] = [
@@ -305,7 +305,7 @@ impl VmCtx {
         $wk0(ctx, cnt, v) = [fits_in_lin_mem(1, cnt)];
     )]
     #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u8)
-          requires $wk0(ctx, cnt, v)
+          requires $wk0()[ctx, cnt, v]
     )]
     pub fn write_u8(&mut self, offset: usize, v: u8) {
         self.mem[offset] = v;
@@ -325,7 +325,7 @@ impl VmCtx {
         $wk0(ctx, cnt, v) = [fits_in_lin_mem(2, cnt)];
     )]
     #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u16)
-          requires $wk0(ctx, cnt, v)
+          requires $wk0()[ctx, cnt, v]
     )]
     pub fn write_u16(&mut self, start: usize, v: u16) {
         let bytes: [u8; 2] = v.to_le_bytes();
@@ -347,7 +347,7 @@ impl VmCtx {
         $wk0(ctx, cnt, v) = [fits_in_lin_mem(4, cnt)];
     )]
     #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u32)
-          requires $wk0(ctx, cnt, v)
+          requires $wk0()[ctx, cnt, v]
     )]
     pub fn write_u32(&mut self, start: usize, v: u32) {
         let bytes: [u8; 4] = v.to_le_bytes();
@@ -370,7 +370,7 @@ impl VmCtx {
         $wk0(ctx, cnt, v) = [fits_in_lin_mem(8, cnt)];
     )]
     #[sig(fn(&mut VmCtx[@ctx], cnt:usize, v: u64)
-          requires $wk0(ctx, cnt, v)
+          requires $wk0()[ctx, cnt, v]
     )]
     pub fn write_u64(&mut self, start: usize, v: u64) {
         let bytes: [u8; 8] = v.to_le_bytes();
@@ -389,8 +389,8 @@ impl VmCtx {
         $wk0(ctx, vec) = [true];
         $wk1(v, ctx, vec) = [v.iov_base + v.iov_len <= ctx.base + LINEAR_MEM_SIZE];
     )]
-    #[sig(fn(&VmCtx[@ctx], &RVec<WasmIoVec>[@vec]) -> RVec<NativeIoVec{v: $wk1(v, ctx, vec)}>
-          requires $wk0(ctx, vec)
+    #[sig(fn(&VmCtx[@ctx], &RVec<WasmIoVec>[@vec]) -> RVec<NativeIoVec{v: $wk1(v)[ctx, vec]}>
+          requires $wk0()[ctx, vec]
     )]
     pub fn translate_iovs(&self, iovs: &RVec<WasmIoVec>) -> RVec<NativeIoVec> {
         let mut idx = 0;

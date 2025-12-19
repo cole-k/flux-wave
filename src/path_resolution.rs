@@ -19,8 +19,8 @@ fn to_pathbuf(v: RVec<u8>) -> PathBuf {
         (should_follow => v.size == v.ns_prefix)
     ];
 )]
-#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<FOwnedComponents{v: $wk1(v, vec, should_follow, dirfd)}, RuntimeError>
-      requires $wk0(vec, should_follow, dirfd)
+#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<FOwnedComponents{v: $wk1(v)[vec, should_follow, dirfd]}, RuntimeError>
+      requires $wk0()[vec, should_follow, dirfd]
 )]
 fn expand_path(
     vec: RVec<u8>,
@@ -66,8 +66,8 @@ fn expand_path(
         v.non_symlink_prefixes
     ];
 )]
-#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<HostPath{v: $wk1(v, vec, should_follow, dirfd)}, RuntimeError>
-      requires $wk0(vec, should_follow, dirfd)
+#[sig(fn(RVec<u8>[@vec], should_follow:bool, dirfd:HostFd) -> Result<HostPath{v: $wk1(v)[vec, should_follow, dirfd]}, RuntimeError>
+      requires $wk0()[vec, should_follow, dirfd]
 )]
 pub fn resolve_path(
     path: RVec<u8>,
@@ -101,7 +101,7 @@ pub fn resolve_path(
         out_path.size == out_path.ns_prefix
     ];
 )]
-#[sig(fn(&mut FOwnedComponents{out_path: $wk0(out_path, linkpath, dirfd)}, linkpath: FOwnedComponents, &mut isize, dirfd:HostFd)
+#[sig(fn(&mut FOwnedComponents{out_path: $wk0()[out_path, linkpath, dirfd]}, linkpath: FOwnedComponents, &mut isize, dirfd:HostFd)
 )]
 fn expand_symlink(
     out_path: &mut FOwnedComponents,

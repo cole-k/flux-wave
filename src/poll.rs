@@ -24,8 +24,8 @@ use RuntimeError::*;
     $wk1(v, cx, precision, timeouts, userdata) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], sub_clock: SubscriptionClock, precision: u64, min_timeout: &mut Option<Timestamp>, tos: &strg RVec<(u64, Timestamp)>[@timeouts], userdata: u64) -> Result<(), RuntimeError>
-      requires $wk0(cx, precision, timeouts, userdata)
-      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v, cx, precision, timeouts, userdata)}
+      requires $wk0()[cx, precision, timeouts, userdata]
+      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v)[cx, precision, timeouts, userdata]}
 )]
 pub fn poll_parse_clock(
     ctx: &VmCtx,
@@ -80,9 +80,9 @@ pub fn poll_parse_clock(
     $wk2(v, cx, pollfds, fd_data, userdata) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], pfds: &strg RVec<libc::pollfd>[@pollfds], fdd: &strg RVec<(u64, SubscriptionFdType)>[@fd_data], userdata: u64, subscription_readwrite: SubscriptionFdReadWrite) -> Result<(), RuntimeError>
-      requires $wk0(cx, pollfds, fd_data, userdata)
-      ensures pfds: RVec<libc::pollfd>{v: $wk1(v, cx, pollfds, fd_data, userdata)},
-              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk2(v, cx, pollfds, fd_data, userdata)}
+      requires $wk0()[cx, pollfds, fd_data, userdata]
+      ensures pfds: RVec<libc::pollfd>{v: $wk1(v)[cx, pollfds, fd_data, userdata]},
+              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk2(v)[cx, pollfds, fd_data, userdata]}
 )]
 pub fn poll_parse_fds(
     ctx: &VmCtx,
@@ -122,10 +122,10 @@ pub fn poll_parse_fds(
     $wk3(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], in_ptr: u32, nsubscriptions: u32, precision: u64, min_timeout: &mut Option<Timestamp>, tos: &strg RVec<(u64, Timestamp)>[@timeouts], pfds: &strg RVec<libc::pollfd>[@pollfds], fdd: &strg RVec<(u64, SubscriptionFdType)>[@fd_data]) -> Result<(), RuntimeError>
-      requires $wk0(cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)
-      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)},
-              pfds: RVec<libc::pollfd>{v: $wk2(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)},
-              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk3(v, cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data)}
+      requires $wk0()[cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data]
+      ensures tos: RVec<(u64, Timestamp)>{v: $wk1(v)[cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data]},
+              pfds: RVec<libc::pollfd>{v: $wk2(v)[cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data]},
+              fdd: RVec<(u64, SubscriptionFdType)>{v: $wk3(v)[cx, in_ptr, nsubscriptions, precision, timeouts, pollfds, fd_data]}
 )]
 pub fn parse_subscriptions(
     ctx: &VmCtx,
@@ -189,8 +189,8 @@ pub fn parse_subscriptions(
     $wk0(cx, out_ptr, timeouts) = [true];
     $wk1(v, out_ptr, timeouts) = [true];
 )]
-#[sig(fn(&mut VmCtx{cx: $wk0(cx, out_ptr, timeouts)}, out_ptr: u32, &RVec<(u64, Timestamp)>[@timeouts], min_timeout: &Option<Timestamp>)
-         -> RuntimeResult<u32{v: $wk1(v, out_ptr, timeouts)}>
+#[sig(fn(&mut VmCtx{cx: $wk0()[cx, out_ptr, timeouts]}, out_ptr: u32, &RVec<(u64, Timestamp)>[@timeouts], min_timeout: &Option<Timestamp>)
+         -> RuntimeResult<u32{v: $wk1(v)[out_ptr, timeouts]}>
 )]
 pub fn writeback_timeouts(
     ctx: &mut VmCtx,
@@ -239,8 +239,8 @@ pub fn writeback_timeouts(
     $wk0(cx, out_ptr, pollfds, fd_data) = [true];
     $wk1(v, out_ptr, pollfds, fd_data) = [true];
 )]
-#[sig(fn(&mut VmCtx{cx: $wk0(cx, out_ptr, pollfds, fd_data)}, out_ptr: u32, &RVec<libc::pollfd>[@pollfds], &RVec<(u64, SubscriptionFdType)>[@fd_data])
-         -> RuntimeResult<u32{v: $wk1(v, out_ptr, pollfds, fd_data)}>
+#[sig(fn(&mut VmCtx{cx: $wk0()[cx, out_ptr, pollfds, fd_data]}, out_ptr: u32, &RVec<libc::pollfd>[@pollfds], &RVec<(u64, SubscriptionFdType)>[@fd_data])
+         -> RuntimeResult<u32{v: $wk1(v)[out_ptr, pollfds, fd_data]}>
 )]
 pub fn writeback_fds(
     ctx: &mut VmCtx,

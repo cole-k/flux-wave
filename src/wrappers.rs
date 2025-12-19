@@ -33,8 +33,8 @@ use std::convert::TryFrom;
     $wk1(v, cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags) = [true];
 )]
 #[sig(fn (ctx: &strg VmCtx[@cx], v_dir_fd: u32, dirflags: u32, pathname: u32, path_len: u32, oflags: u32, fdflags: i32)
-          -> Result<u32{v: $wk1(v, cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags)}, RuntimeError>
-      requires $wk0(cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags)
+          -> Result<u32{v: $wk1(v)[cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags]}, RuntimeError>
+      requires $wk0()[cx, v_dir_fd, dirflags, pathname, path_len, oflags, fdflags]
       ensures ctx: VmCtx
 )]
 pub fn wasi_path_open(
@@ -86,8 +86,8 @@ pub fn wasi_path_open(
     $wk1(v, dummy, v_fd) = [true];
 )]
 #[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: u32)
-          -> Result<u32{v: $wk1(v, dummy, v_fd)}, RuntimeError>
-      requires $wk0(dummy, v_fd)
+          -> Result<u32{v: $wk1(v)[dummy, v_fd]}, RuntimeError>
+      requires $wk0()[dummy, v_fd]
       ensures ctx: VmCtx
 )]
 pub fn wasi_fd_close(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
@@ -126,8 +126,8 @@ pub fn wasi_fd_close(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
     $wk1(v, d, v_fd, iovs, iovcnt) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32)
-          -> Result<u32{v : $wk1(v, d, v_fd, iovs, iovcnt)}, RuntimeError>
-      requires $wk0(d, v_fd, iovs, iovcnt)
+          -> Result<u32{v : $wk1(v)[d, v_fd, iovs, iovcnt]}, RuntimeError>
+      requires $wk0()[d, v_fd, iovs, iovcnt]
       ensures d: VmCtx
 )]
 pub fn wasi_fd_read(
@@ -154,8 +154,8 @@ pub fn wasi_fd_read(
     $wk1(v, d, v_fd, iovs, iovcnt) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, iovs: u32, iovcnt: u32)
-          -> Result<u32{v : $wk1(v, d, v_fd, iovs, iovcnt)}, RuntimeError>
-      requires $wk0(d, v_fd, iovs, iovcnt)
+          -> Result<u32{v : $wk1(v)[d, v_fd, iovs, iovcnt]}, RuntimeError>
+      requires $wk0()[d, v_fd, iovs, iovcnt]
       ensures d: VmCtx
 )]
 pub fn wasi_fd_write(
@@ -185,8 +185,8 @@ pub fn wasi_fd_write(
     $wk1(v, cx, v_fd, v_filedelta, v_whence) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, v_filedelta: i64, v_whence: u32)
-          -> Result<u32{v : $wk1(v, cx, v_fd, v_filedelta, v_whence)}, RuntimeError>
-      requires $wk0(cx, v_fd, v_filedelta, v_whence)
+          -> Result<u32{v : $wk1(v)[cx, v_fd, v_filedelta, v_whence]}, RuntimeError>
+      requires $wk0()[cx, v_fd, v_filedelta, v_whence]
 )]
 pub fn wasi_fd_seek(ctx: &VmCtx, v_fd: u32, v_filedelta: i64, v_whence: u32) -> RuntimeResult<u64> {
     let whence = Whence::from_u32(v_whence).ok_or(Einval)?;
@@ -207,8 +207,8 @@ pub fn wasi_fd_seek(ctx: &VmCtx, v_fd: u32, v_filedelta: i64, v_whence: u32) -> 
     $wk0(d, v_fd) = [true];
     $wk1(v, v_fd) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
-          -> Result<u64{v : $wk1(v, v_fd)}, RuntimeError>
+#[sig(fn (ctx: &mut VmCtx{d: $wk0()[d, v_fd]}, v_fd: u32)
+          -> Result<u64{v : $wk1(v)[v_fd]}, RuntimeError>
 )]
 pub fn wasi_fd_tell(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u64> {
     wasi_fd_seek(ctx, v_fd, 0, 1) // Whence::Cur
@@ -227,8 +227,8 @@ pub fn wasi_fd_tell(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u64> {
     $wk1(v, cx, v_fd, offset, len, v_advice) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, offset: u64, len: u64, v_advice: u32)
-          -> Result<u32{v : $wk1(v, cx, v_fd, offset, len, v_advice)}, RuntimeError>
-      requires $wk0(cx, v_fd, offset, len, v_advice)
+          -> Result<u32{v : $wk1(v)[cx, v_fd, offset, len, v_advice]}, RuntimeError>
+      requires $wk0()[cx, v_fd, offset, len, v_advice]
 )]
 pub fn wasi_fd_advise(
     ctx: &VmCtx,
@@ -256,8 +256,8 @@ pub fn wasi_fd_advise(
     $wk1(v, cx, v_fd, offset, len) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, offset: u64, len: u64)
-          -> Result<u32{v : $wk1(v, cx, v_fd, offset, len)}, RuntimeError>
-      requires $wk0(cx, v_fd, offset, len)
+          -> Result<u32{v : $wk1(v)[cx, v_fd, offset, len]}, RuntimeError>
+      requires $wk0()[cx, v_fd, offset, len]
 )]
 pub fn wasi_fd_allocate(ctx: &VmCtx, v_fd: u32, offset: u64, len: u64) -> RuntimeResult<u32> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -276,7 +276,7 @@ pub fn wasi_fd_allocate(ctx: &VmCtx, v_fd: u32, offset: u64, len: u64) -> Runtim
 #[vars(
     $wk0(d, v_fd) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+#[sig(fn (ctx: &mut VmCtx{d: $wk0()[d, v_fd]}, v_fd: u32)
           -> Result<(), RuntimeError>
 )]
 pub fn wasi_fd_sync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<()> {
@@ -296,8 +296,8 @@ pub fn wasi_fd_sync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<()> {
     $wk0(d, v_fd) = [true];
     $wk1(v, v_fd) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
-          -> Result<u32{v : $wk1(v, v_fd)}, RuntimeError>
+#[sig(fn (ctx: &mut VmCtx{d: $wk0()[d, v_fd]}, v_fd: u32)
+          -> Result<u32{v : $wk1(v)[v_fd]}, RuntimeError>
 )]
 pub fn wasi_fd_datasync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u32> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -316,7 +316,7 @@ pub fn wasi_fd_datasync(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<u32> {
 #[vars(
     $wk0(d, v_fd) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx{d: $wk0(d, v_fd)}, v_fd: u32)
+#[sig(fn (ctx: &mut VmCtx{d: $wk0()[d, v_fd]}, v_fd: u32)
           -> Result<FdStat, RuntimeError>
 )]
 pub fn wasi_fd_fdstat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FdStat> {
@@ -349,7 +349,7 @@ pub fn wasi_fd_fdstat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FdStat> {
 )]
 #[sig(fn (ctx: &mut VmCtx[@d], v_fd: u32, v_flags: u32)
           -> Result<(), RuntimeError>
-      requires $wk0(d, v_fd, v_flags)
+      requires $wk0()[d, v_fd, v_flags]
       ensures d: VmCtx
 )]
 pub fn wasi_fd_fdstat_set_flags(
@@ -377,7 +377,7 @@ pub fn wasi_fd_fdstat_set_flags(
     $wk0(ctx, v_fd) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_fd: u32) -> Result<FileStat, RuntimeError>
-      requires $wk0(ctx, v_fd)
+      requires $wk0()[ctx, v_fd]
 )]
 pub fn wasi_fd_filestat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FileStat> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -400,7 +400,7 @@ pub fn wasi_fd_filestat_get(ctx: &VmCtx, v_fd: u32) -> RuntimeResult<FileStat> {
     $wk0(ctx, v_fd, size) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_fd: u32, size: i64) -> RuntimeResult<()>
-      requires $wk0(ctx, v_fd, size)
+      requires $wk0()[ctx, v_fd, size]
 )]
 pub fn wasi_fd_filestat_set_size(ctx: &VmCtx, v_fd: u32, size: i64) -> RuntimeResult<()> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -422,7 +422,7 @@ pub fn wasi_fd_filestat_set_size(ctx: &VmCtx, v_fd: u32, size: i64) -> RuntimeRe
     $wk0(dummy, v_fd, v_atim, v_mtim, v_fst_flags) = [true];
 )]
 #[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, v_atim: u64, v_mtim: u64, v_fst_flags: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, v_fd, v_atim, v_mtim, v_fst_flags)
+      requires $wk0()[dummy, v_fd, v_atim, v_mtim, v_fst_flags]
 )]
 pub fn wasi_fd_filestat_set_times(
     ctx: &mut VmCtx,
@@ -456,8 +456,8 @@ pub fn wasi_fd_filestat_set_times(
     $wk0(dummy, v_fd, iovs, iovcnt, offset) = [true];
     $wk1(v, dummy, v_fd, iovs, iovcnt, offset) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, iovs, iovcnt, offset)}, RuntimeError>
-      requires $wk0(dummy, v_fd, iovs, iovcnt, offset)
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v)[dummy, v_fd, iovs, iovcnt, offset]}, RuntimeError>
+      requires $wk0()[dummy, v_fd, iovs, iovcnt, offset]
 )]
 pub fn wasi_fd_pread(
     ctx: &mut VmCtx,
@@ -487,7 +487,7 @@ pub fn wasi_fd_pread(
     $wk0(v_fd, path, _path_len) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx, v_fd: u32, path: u32, _path_len: u32) -> RuntimeResult<()>
-      requires $wk0(v_fd, path, _path_len)
+      requires $wk0()[v_fd, path, _path_len]
 )]
 pub fn wasi_prestat_dirname(
     ctx: &mut VmCtx,
@@ -521,8 +521,8 @@ pub fn wasi_prestat_dirname(
     $wk0(dummy, v_fd) = [true];
     $wk1(v, dummy, v_fd) = [true];
 )]
-#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32) -> Result<u32{v: $wk1(v, dummy, v_fd)}, RuntimeError>
-      requires $wk0(dummy, v_fd)
+#[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32) -> Result<u32{v: $wk1(v)[dummy, v_fd]}, RuntimeError>
+      requires $wk0()[dummy, v_fd]
 )]
 pub fn wasi_fd_prestat_get(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeError> {
     if v_fd == HOMEDIR_FD {
@@ -541,8 +541,8 @@ pub fn wasi_fd_prestat_get(ctx: &mut VmCtx, v_fd: u32) -> Result<u32, RuntimeErr
     $wk0(dummy, v_fd, iovs, iovcnt, offset) = [true];
     $wk1(v, dummy, v_fd, iovs, iovcnt, offset) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, iovs, iovcnt, offset)}, RuntimeError>
-      requires $wk0(dummy, v_fd, iovs, iovcnt, offset)
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, iovs: u32, iovcnt: u32, offset: u64) -> Result<u32{v: $wk1(v)[dummy, v_fd, iovs, iovcnt, offset]}, RuntimeError>
+      requires $wk0()[dummy, v_fd, iovs, iovcnt, offset]
 )]
 pub fn wasi_fd_pwrite(
     ctx: &mut VmCtx,
@@ -572,7 +572,7 @@ pub fn wasi_fd_pwrite(
     $wk0(dummy, v_fd, pathname, path_len) = [true];
 )]
 #[sig(fn(ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, v_fd, pathname, path_len)
+      requires $wk0()[dummy, v_fd, pathname, path_len]
 )]
 pub fn wasi_path_create_directory(
     ctx: &mut VmCtx,
@@ -610,7 +610,7 @@ pub fn wasi_path_create_directory(
     $wk0(ctx, v_fd, flags, pathname, path_len) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_fd: u32, flags: u32, pathname: u32, path_len: u32) -> RuntimeResult<FileStat>
-      requires $wk0(ctx, v_fd, flags, pathname, path_len,)
+      requires $wk0()[ctx, v_fd, flags, pathname, path_len,]
 )]
 pub fn wasi_path_filestat_get(
     ctx: &VmCtx,
@@ -661,7 +661,7 @@ pub fn wasi_path_filestat_get(
     $wk0(ctx, v_fd, flags, pathname, path_len, atim, mtim, v_fst_flags) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_fd: u32, flags: u32, pathname: u32, path_len: u32, atim: u64, mtim: u64, v_fst_flags: u32) -> RuntimeResult<()>
-      requires $wk0(ctx, v_fd, flags, pathname, path_len, atim, mtim, v_fst_flags)
+      requires $wk0()[ctx, v_fd, flags, pathname, path_len, atim, mtim, v_fst_flags]
 )]
 pub fn wasi_path_filestat_set_times(
     ctx: &VmCtx,
@@ -727,7 +727,7 @@ pub fn wasi_path_filestat_set_times(
     $wk0(ctx, v_old_fd, flags, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_old_fd: u32, flags: u32, old_pathname: u32, old_path_len: u32, v_new_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
-      requires $wk0(ctx, v_old_fd, flags, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len)
+      requires $wk0()[ctx, v_old_fd, flags, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len]
 )]
 pub fn wasi_path_link(
     ctx: &VmCtx,
@@ -796,8 +796,8 @@ pub fn wasi_path_link(
     $wk0(cx, v_fd, pathname, path_len, ptr, len) = [true];
     $wk1(v, cx, v_fd, pathname, path_len, ptr, len) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32, ptr: u32, len: u32) -> Result<u32{v: $wk1(v, cx, v_fd, pathname, path_len, ptr, len)}, RuntimeError>
-      requires $wk0(cx, v_fd, pathname, path_len, ptr, len)
+#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32, ptr: u32, len: u32) -> Result<u32{v: $wk1(v)[cx, v_fd, pathname, path_len, ptr, len]}, RuntimeError>
+      requires $wk0()[cx, v_fd, pathname, path_len, ptr, len]
 )]
 pub fn wasi_path_readlink(
     ctx: &mut VmCtx,
@@ -839,7 +839,7 @@ pub fn wasi_path_readlink(
     $wk0(cx, v_fd, pathname, path_len) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
-      requires $wk0(cx, v_fd, pathname, path_len)
+      requires $wk0()[cx, v_fd, pathname, path_len]
 )]
 pub fn wasi_path_remove_directory(
     ctx: &mut VmCtx,
@@ -880,7 +880,7 @@ pub fn wasi_path_remove_directory(
     $wk0(ctx, v_old_fd, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], v_old_fd: u32, old_pathname: u32, old_path_len: u32, v_new_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
-      requires $wk0(ctx, v_old_fd, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len)
+      requires $wk0()[ctx, v_old_fd, old_pathname, old_path_len, v_new_fd, new_pathname, new_path_len]
 )]
 pub fn wasi_path_rename(
     ctx: &VmCtx,
@@ -924,7 +924,7 @@ pub fn wasi_path_rename(
     $wk0(ctx, old_pathname, old_path_len, v_fd, new_pathname, new_path_len) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], old_pathname: u32, old_path_len: u32, v_fd: u32, new_pathname: u32, new_path_len: u32) -> RuntimeResult<()>
-      requires $wk0(ctx, old_pathname, old_path_len, v_fd, new_pathname, new_path_len)
+      requires $wk0()[ctx, old_pathname, old_path_len, v_fd, new_pathname, new_path_len]
 )]
 pub fn wasi_path_symlink(
     ctx: &VmCtx,
@@ -961,7 +961,7 @@ pub fn wasi_path_symlink(
     $wk0(dummy, v_fd, pathname, path_len) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, pathname: u32, path_len: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, v_fd, pathname, path_len)
+      requires $wk0()[dummy, v_fd, pathname, path_len]
 )]
 pub fn wasi_path_unlink_file(
     ctx: &mut VmCtx,
@@ -996,7 +996,7 @@ pub fn wasi_path_unlink_file(
     $wk0(ctx, clock_id) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], clock_id: u32) -> RuntimeResult<Timestamp>
-      requires $wk0(ctx, clock_id)
+      requires $wk0()[ctx, clock_id]
 )]
 pub fn wasi_clock_res_get(ctx: &VmCtx, clock_id: u32) -> RuntimeResult<Timestamp> {
     let id = ClockId::try_from(clock_id)?;
@@ -1018,7 +1018,7 @@ pub fn wasi_clock_res_get(ctx: &VmCtx, clock_id: u32) -> RuntimeResult<Timestamp
     $wk0(ctx, clock_id, _precision) = [true];
 )]
 #[sig(fn (&VmCtx[@ctx], clock_id: u32, _precision: u64) -> RuntimeResult<Timestamp>
-      requires $wk0(ctx, clock_id, _precision)
+      requires $wk0()[ctx, clock_id, _precision]
 )]
 pub fn wasi_clock_time_get(
     ctx: &VmCtx,
@@ -1043,7 +1043,7 @@ pub fn wasi_clock_time_get(
     $wk0(_ctx, _rval) = [true];
 )]
 #[sig(fn (&VmCtx[@_ctx], _rval: u32) -> RuntimeResult<()>
-      requires $wk0(_ctx, _rval)
+      requires $wk0()[_ctx, _rval]
 )]
 pub fn wasi_proc_exit(_ctx: &VmCtx, _rval: u32) -> RuntimeResult<()> {
     Ok(())
@@ -1060,7 +1060,7 @@ pub fn wasi_proc_exit(_ctx: &VmCtx, _rval: u32) -> RuntimeResult<()> {
     $wk0(_ctx, _signal) = [true];
 )]
 #[sig(fn (&VmCtx[@_ctx], _signal: u32) -> RuntimeResult<()>
-      requires $wk0(_ctx, _signal)
+      requires $wk0()[_ctx, _signal]
 )]
 pub fn wasi_proc_raise(_ctx: &VmCtx, _signal: u32) -> RuntimeResult<()> {
     Ok(())
@@ -1077,7 +1077,7 @@ pub fn wasi_proc_raise(_ctx: &VmCtx, _signal: u32) -> RuntimeResult<()> {
     $wk0(_ctx) = [true];
 )]
 #[sig(fn (&VmCtx[@_ctx]) -> RuntimeResult<()>
-      requires $wk0(_ctx)
+      requires $wk0()[_ctx]
 )]
 pub fn wasi_sched_yield(_ctx: &VmCtx) -> RuntimeResult<()> {
     Ok(())
@@ -1095,7 +1095,7 @@ pub fn wasi_sched_yield(_ctx: &VmCtx) -> RuntimeResult<()> {
     $wk0(dummy, ptr, len) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], ptr: u32, len: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, ptr, len)
+      requires $wk0()[dummy, ptr, len]
 )]
 pub fn wasi_random_get(ctx: &mut VmCtx, ptr: u32, len: u32) -> Result<(), RuntimeError> {
     if !ctx.fits_in_lin_mem(ptr, len) {
@@ -1118,7 +1118,7 @@ pub fn wasi_random_get(ctx: &mut VmCtx, ptr: u32, len: u32) -> Result<(), Runtim
     $wk0(dummy, v_from, v_to) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], v_from: u32, v_to: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, v_from, v_to)
+      requires $wk0()[dummy, v_from, v_to]
 )]
 pub fn wasi_fd_renumber(ctx: &mut VmCtx, v_from: u32, v_to: u32) -> Result<(), RuntimeError> {
     if v_from >= MAX_SBOX_FDS || v_to >= MAX_SBOX_FDS {
@@ -1139,7 +1139,7 @@ pub fn wasi_fd_renumber(ctx: &mut VmCtx, v_from: u32, v_to: u32) -> Result<(), R
     $wk0(dummy, argv, argv_buf) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], argv: u32, argv_buf: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, argv, argv_buf)
+      requires $wk0()[dummy, argv, argv_buf]
 )]
 pub fn wasi_args_get(ctx: &mut VmCtx, argv: u32, argv_buf: u32) -> Result<(), RuntimeError> {
     // 1. copy argv_buffer
@@ -1194,7 +1194,7 @@ pub fn wasi_args_get(ctx: &mut VmCtx, argv: u32, argv_buf: u32) -> Result<(), Ru
     $wk0(dummy, env, env_buf) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], env: u32, env_buf: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, env, env_buf)
+      requires $wk0()[dummy, env, env_buf]
 )]
 pub fn wasi_environ_get(ctx: &mut VmCtx, env: u32, env_buf: u32) -> Result<(), RuntimeError> {
     // 1. copy argv_buffer
@@ -1247,8 +1247,8 @@ pub fn wasi_environ_get(ctx: &mut VmCtx, env: u32, env_buf: u32) -> Result<(), R
     $wk1(v, ctx) = [true];
     $wk2(v, ctx) = [true];
 )]
-#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v, ctx)}, u32{v: $wk2(v, ctx)})>
-      requires $wk0(ctx)
+#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v)[ctx]}, u32{v: $wk2(v)[ctx]})>
+      requires $wk0()[ctx]
 )]
 pub fn wasi_args_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     Ok((ctx.argc as u32, ctx.arg_buffer.len() as u32))
@@ -1267,8 +1267,8 @@ pub fn wasi_args_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     $wk1(v, ctx) = [true];
     $wk2(v, ctx) = [true];
 )]
-#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v, ctx)}, u32{v: $wk2(v, ctx)})>
-      requires $wk0(ctx)
+#[sig(fn (&VmCtx[@ctx]) -> RuntimeResult<(u32{v: $wk1(v)[ctx]}, u32{v: $wk2(v)[ctx]})>
+      requires $wk0()[ctx]
 )]
 pub fn wasi_environ_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     Ok((ctx.envc as u32, ctx.env_buffer.len() as u32))
@@ -1287,8 +1287,8 @@ pub fn wasi_environ_sizes_get(ctx: &VmCtx) -> RuntimeResult<(u32, u32)> {
     $wk1(v, dummy, v_fd, ri_data, ri_data_count, ri_flags) = [true];
     $wk2(v, dummy, v_fd, ri_data, ri_data_count, ri_flags) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, ri_data: u32, ri_data_count: u32, ri_flags: u32) -> Result<(u32{v: $wk1(v, dummy, v_fd, ri_data, ri_data_count, ri_flags)}, u32{v: $wk2(v, dummy, v_fd, ri_data, ri_data_count, ri_flags)}), RuntimeError>
-      requires $wk0(dummy, v_fd, ri_data, ri_data_count, ri_flags)
+#[sig(fn (ctx: &mut VmCtx[@dummy], v_fd: u32, ri_data: u32, ri_data_count: u32, ri_flags: u32) -> Result<(u32{v: $wk1(v)[dummy, v_fd, ri_data, ri_data_count, ri_flags]}, u32{v: $wk2(v)[dummy, v_fd, ri_data, ri_data_count, ri_flags]}), RuntimeError>
+      requires $wk0()[dummy, v_fd, ri_data, ri_data_count, ri_flags]
 )]
 pub fn wasi_sock_recv(
     ctx: &mut VmCtx,
@@ -1335,8 +1335,8 @@ pub fn wasi_sock_recv(
     $wk0(cx, v_fd, si_data, si_data_count, si_flags) = [true];
     $wk1(v, cx, v_fd, si_data, si_data_count, si_flags) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, si_data: u32, si_data_count: u32, si_flags: u32) -> Result<u32{v: $wk1(v, cx, v_fd, si_data, si_data_count, si_flags)}, RuntimeError>
-      requires $wk0(cx, v_fd, si_data, si_data_count, si_flags)
+#[sig(fn (ctx: &mut VmCtx[@cx], v_fd: u32, si_data: u32, si_data_count: u32, si_flags: u32) -> Result<u32{v: $wk1(v)[cx, v_fd, si_data, si_data_count, si_flags]}, RuntimeError>
+      requires $wk0()[cx, v_fd, si_data, si_data_count, si_flags]
 )]
 pub fn wasi_sock_send(
     ctx: &mut VmCtx,
@@ -1382,7 +1382,7 @@ pub fn wasi_sock_send(
     $wk0(cx, v_fd, v_how) = [true];
 )]
 #[sig(fn (ctx: &VmCtx[@cx], v_fd: u32, v_how: u32) -> Result<(), RuntimeError>
-      requires $wk0(cx, v_fd, v_how)
+      requires $wk0()[cx, v_fd, v_how]
 )]
 pub fn wasi_sock_shutdown(ctx: &VmCtx, v_fd: u32, v_how: u32) -> Result<(), RuntimeError> {
     let fd = ctx.fdmap.fd_to_native(v_fd)?;
@@ -1416,8 +1416,8 @@ pub fn wasi_sock_shutdown(ctx: &VmCtx, v_fd: u32, v_how: u32) -> Result<(), Runt
     $wk0(in_ptr, out_ptr, nsubscriptions) = [true];
     $wk1(v, in_ptr, out_ptr, nsubscriptions) = [true];
 )]
-#[sig(fn (ctx: &mut VmCtx, in_ptr: u32, out_ptr: u32, nsubscriptions: u32) -> RuntimeResult<u32{v: $wk1(v, in_ptr, out_ptr, nsubscriptions)}>
-      requires $wk0(in_ptr, out_ptr, nsubscriptions)
+#[sig(fn (ctx: &mut VmCtx, in_ptr: u32, out_ptr: u32, nsubscriptions: u32) -> RuntimeResult<u32{v: $wk1(v)[in_ptr, out_ptr, nsubscriptions]}>
+      requires $wk0()[in_ptr, out_ptr, nsubscriptions]
 )]
 pub fn wasi_poll_oneoff(
     ctx: &mut VmCtx,
@@ -1497,8 +1497,8 @@ pub fn wasi_poll_oneoff(
     $wk0(dummy, v_fd, buf, buf_len, cookie) = [true];
     $wk1(v, dummy, v_fd, buf, buf_len, cookie) = [true];
 )]
-#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: SboxFd, buf: SboxFd, buf_len: usize, cookie: u64) -> Result<u32{v: $wk1(v, dummy, v_fd, buf, buf_len, cookie)}, RuntimeError>
-      requires $wk0(dummy, v_fd, buf, buf_len, cookie)
+#[sig(fn (ctx: &strg VmCtx[@dummy], v_fd: SboxFd, buf: SboxFd, buf_len: usize, cookie: u64) -> Result<u32{v: $wk1(v)[dummy, v_fd, buf, buf_len, cookie]}, RuntimeError>
+      requires $wk0()[dummy, v_fd, buf, buf_len, cookie]
       ensures ctx: VmCtx
 )]
 pub fn wasi_fd_readdir(
@@ -1592,8 +1592,8 @@ pub fn wasi_fd_readdir(
     $wk0(dummy, domain, ty, protocol) = [true];
     $wk1(v, dummy, domain, ty, protocol) = [true];
 )]
-#[sig(fn (ctx: &strg VmCtx[@dummy], domain: u32, ty: u32, protocol: u32) -> Result<u32{v: $wk1(v, dummy, domain, ty, protocol)}, RuntimeError>
-      requires $wk0(dummy, domain, ty, protocol)
+#[sig(fn (ctx: &strg VmCtx[@dummy], domain: u32, ty: u32, protocol: u32) -> Result<u32{v: $wk1(v)[dummy, domain, ty, protocol]}, RuntimeError>
+      requires $wk0()[dummy, domain, ty, protocol]
       ensures ctx: VmCtx
 )]
 pub fn wasi_socket(
@@ -1639,7 +1639,7 @@ pub fn wasi_socket(
     $wk0(dummy, sockfd, addr, addrlen) = [true];
 )]
 #[sig(fn (ctx: &mut VmCtx[@dummy], sockfd: u32, addr: u32, addrlen: u32) -> Result<(), RuntimeError>
-      requires $wk0(dummy, sockfd, addr, addrlen)
+      requires $wk0()[dummy, sockfd, addr, addrlen]
 )]
 pub fn wasi_sock_connect(
     ctx: &mut VmCtx,
