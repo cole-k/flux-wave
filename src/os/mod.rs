@@ -18,6 +18,7 @@ use flux_rs::*;
 
 #[cfg_attr(target_os = "linux", path = "platform/linux.rs")]
 #[cfg_attr(target_os = "macos", path = "platform/mac.rs")]
+#[cfg_attr(flux, flux::no_suggestions)]
 mod platform;
 pub use platform::*;
 

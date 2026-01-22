@@ -2,21 +2,29 @@
 #![allow(unused_comparisons)]
 
 mod fdmap;
+#[cfg_attr(flux, flux::no_suggestions)]
 mod iov;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod lucet_frontend;
 pub mod os;
 mod path_resolution;
 mod poll;
 pub mod runtime;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod rvec;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod stats;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod tcb;
 #[cfg(test)]
 mod tests;
 pub mod types;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod verifier_interface;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod wasm2c_frontend;
 pub mod wrappers;
+#[cfg_attr(flux, flux::no_suggestions)]
 mod writeback;
 
 #[cfg(flux)]
