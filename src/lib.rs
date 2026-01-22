@@ -18,6 +18,7 @@ pub mod stats;
 pub mod tcb;
 #[cfg(test)]
 mod tests;
+#[cfg_attr(flux, flux::no_suggestions)]
 pub mod types;
 #[cfg_attr(flux, flux::no_suggestions)]
 pub mod verifier_interface;
